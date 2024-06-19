@@ -3,10 +3,10 @@
     image: zenvi.client
     build:
       context: .
-      dockerfile: Zenvi.Client/Dockerfile
+      dockerfile: src/Zenvi.Client/Dockerfile
 
   zenvi.core:
     image: zenvi.core
     build:
       context: .
-      dockerfile: Zenvi.Core/Dockerfile
+      dockerfile: src/Zenvi.Core/Dockerfile

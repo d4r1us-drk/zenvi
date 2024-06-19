@@ -1,0 +1,4 @@
+-- Zenvi DDL File
+DROP DATABASE IF EXISTS `ZenviDB`;
+CREATE DATABASE `ZenviDB`;
+USE `ZenviDB`;
