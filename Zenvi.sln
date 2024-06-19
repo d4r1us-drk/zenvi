@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zenvi.Core", "Zenvi.Core\Zenvi.Core.csproj", "{AB1F39C6-3623-409F-B174-BB9162CC3188}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zenvi.Shared", "Zenvi.Shared\Zenvi.Shared.csproj", "{BEAF8F3F-9367-43FC-8E53-E3E9E4B06EA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zenvi.Client", "Zenvi.Client\Zenvi.Client.csproj", "{D76465EC-124B-4FE5-917A-5F2034A90E3A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB1F39C6-3623-409F-B174-BB9162CC3188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB1F39C6-3623-409F-B174-BB9162CC3188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB1F39C6-3623-409F-B174-BB9162CC3188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB1F39C6-3623-409F-B174-BB9162CC3188}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEAF8F3F-9367-43FC-8E53-E3E9E4B06EA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEAF8F3F-9367-43FC-8E53-E3E9E4B06EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEAF8F3F-9367-43FC-8E53-E3E9E4B06EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEAF8F3F-9367-43FC-8E53-E3E9E4B06EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D76465EC-124B-4FE5-917A-5F2034A90E3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D76465EC-124B-4FE5-917A-5F2034A90E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D76465EC-124B-4FE5-917A-5F2034A90E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D76465EC-124B-4FE5-917A-5F2034A90E3A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
