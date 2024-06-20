@@ -1,4 +1,4 @@
-# Idea Inicial para el Proyecto Zenvi
+# Idea Inicial
 
 ## 1. Contexto
 
@@ -67,6 +67,24 @@ Los usuarios de Zenvi podrán realizar las siguientes acciones:
    notificándolos de la mención.
 10. **Gestión de Notificaciones**: Manejar notificaciones que incluyen
     menciones en publicaciones, nuevos seguidores y mensajes.
+
+### 2.2.4. Metadatos de Publicaciones
+
+Las publicaciones en Zenvi contendrán los siguientes metadatos:
+
+1. **Fecha de Publicación**: Registro de la fecha y hora en que la publicación
+   fue realizada.
+2. **Fecha de Modificación**: Si la publicación fue editada, se mostrará la
+   fecha y hora de la última modificación.
+3. **Likes**: Los usuarios podrán dar "like" a cualquier publicación, y el
+   número total de "likes" será visible en cada publicación.
+
+Además, los usuarios tendrán la capacidad de:
+
+- **Editar sus Publicaciones**: Permitiendo corregir o actualizar el contenido
+  de las publicaciones.
+- **Dar "Like" a Publicaciones**: Interactuar con las publicaciones de otros
+  usuarios mediante el sistema de "likes".
 
 ---
 
