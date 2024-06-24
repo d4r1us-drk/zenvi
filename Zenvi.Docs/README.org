@@ -12,9 +12,9 @@ development of the project as follows:
    objectives are defined, as well as information modeling and use cases.
 3. *Design*: Stage in which the software and data architecture will be designed,
    as well as the initial prototypes.
-4. *Construction*: Stage in which everything done will be translated into code.
-5. *Testing*: Stage in which the software will be tested.
-6. *Implementation*: Stage in which the software will be deployed.
+4. *Development*: Stage in which everything done will be translated into code.
+5. *Tests*: Stage in which the software will be tested.
+6. *Deployment*: Stage in which the software will be deployed.
 
 ** Additional Details
 
