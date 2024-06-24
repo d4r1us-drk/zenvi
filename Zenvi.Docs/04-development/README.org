@@ -1,0 +1,6 @@
+#+title: Software Development
+#+author: Clay Gomera
+#+description: README file for the software development folder
+
+This folder's main purpose is to host all the documentation for the software
+development process. The following files at this point have been made:

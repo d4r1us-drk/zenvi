@@ -1,0 +1,6 @@
+#+title: Requirements Analysis
+#+author: Clay Gomera
+#+description: README file for the requirements analisis folder
+
+This folder's main purpose is to host all the documentation for the requirements
+analysis process. The following files at this point have been made:

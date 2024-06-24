@@ -1,0 +1,25 @@
+#+title: Zenvi Project Documentation
+#+author: Clay Gomera
+#+description: README file for the documentation folder
+
+This folder is responsible for storing all the documentation related to the
+Zenvi project. The documentation will be divided by each stage followed in the
+development of the project as follows:
+
+1. *Definition*: Stage of defining the software requirements.
+2. *Analysis*: Stage in which the analysis of these requirements is carried out,
+   with the aim of giving them greater solidity. Here, user processes and
+   objectives are defined, as well as information modeling and use cases.
+3. *Design*: Stage in which the software and data architecture will be designed,
+   as well as the initial prototypes.
+4. *Construction*: Stage in which everything done will be translated into code.
+5. *Testing*: Stage in which the software will be tested.
+6. *Implementation*: Stage in which the software will be deployed.
+
+** Additional Details
+
+- This documentation covers the development process of the project.
+- This documentation does not discuss the use of the software from a user's
+  perspective (it is not a user manual).
+- I do not plan to conduct extensive testing, only to ensure that the software
+  functions and is presentable.
