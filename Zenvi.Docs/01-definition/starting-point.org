@@ -18,11 +18,11 @@ network for macroblogging and private messaging.
 To differentiate the Zenvi project from what already exists, it has been decided
 to focus on the following aspects:
 
-- **Privacy**: Zenvi will be a private and completely independent social network,
+- *Privacy*: Zenvi will be a private and completely independent social network,
   designed to be used by closed groups such as families or friends.
-- **Open Source Community**: The project will encourage participation from the
+- *Open Source Community*: The project will encourage participation from the
   open source community, allowing for continuous collaboration and improvements.
-- **Self-Hosted Model**: Zenvi will be self-hosted, meaning each group can manage
+- *Self-Hosted Model*: Zenvi will be self-hosted, meaning each group can manage
   their own server, thereby ensuring greater control over data and privacy.
 
 ** Ideas
@@ -32,15 +32,15 @@ suitability for the stated objectives.
 
 *** Access and Administration
 
-- **Login**: The site will only be accessible through login, emphasizing the
+- *Login*: The site will only be accessible through login, emphasizing the
   privacy of the social network.
-- **Account Management**: The administrator will be solely responsible for
+- *Account Management*: The administrator will be solely responsible for
   creating and managing server accounts. There will be no registration form
   available for users.
 
 *** Home Page
 
-- **Main Feed**: Similar to Facebook, the home page will display a global feed
+- *Main Feed*: Similar to Facebook, the home page will display a global feed
   that includes all posts on the server. This feed will not have default
   filters, suitable for small communities. Users can follow other users and
   filter the feed to show only the posts from those they follow.
