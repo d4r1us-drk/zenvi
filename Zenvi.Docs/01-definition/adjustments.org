@@ -1,4 +1,4 @@
-#+title: Adjusments
+#+title: Adjustments
 #+author: Clay Gomera
 #+description: The list of adjustments made to the initial idea
 
