@@ -7,7 +7,7 @@
   <picture>
     <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: dark)">
     <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: light)">
-    <img src="./assets/zenvi-logo.svg" alt="Zenvi Logo">
+    <img src="./assets/zenvi-logo.svg" alt="Zenvi Logo" width="100px">
   </picture>
 </div>
 #+end_html
