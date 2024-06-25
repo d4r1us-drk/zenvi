@@ -8,8 +8,8 @@
 Zenvi is the final project for the Web Application Development course. The
 choice of this project arose from the top 100 most visited websites according to
 Similarweb, a recommendation from the professor to inspire us in the type of
-website to develop. My choice was to create a clone of Facebook, a social
-network for macroblogging and private messaging.
+website to develop. My choice was to create a clone of Twitter, a social network
+for microblogging and private messaging.
 
 * Project Details
 
@@ -20,10 +20,11 @@ to focus on the following aspects:
 
 - *Privacy*: Zenvi will be a private and completely independent social network,
   designed to be used by closed groups such as families or friends.
-- *Open Source Community*: The project will encourage participation from the
-  open source community, allowing for continuous collaboration and improvements.
 - *Self-Hosted Model*: Zenvi will be self-hosted, meaning each group can manage
   their own server, thereby ensuring greater control over data and privacy.
+- *Simplicity*: Zenvi will prioritize simplicity and efficiency over an
+  overwhelming amount of features, focusing solely on the social aspect of the
+  platform.
 
 ** Ideas
 
@@ -34,13 +35,18 @@ suitability for the stated objectives.
 
 - *Login*: The site will only be accessible through login, emphasizing the
   privacy of the social network.
-- *Account Management*: The administrator will be solely responsible for
-  creating and managing server accounts. There will be no registration form
-  available for users.
+- *Account Management*: The administrator is able to manage all accounts in the
+  server.
+- *Authentication*: Users need to confirm their email address before login into
+  the site. After registering, a confirmation email will be sent to the user.
+- *Two Factor Authentication*: Users will be able to enable TOTP based two factor
+  authentication from their profile settings, but by default email based two
+  factor authentication is enforced to every user.
+- *Single Sign-On*: Users will be able to sign-in using Google or Microsoft.
 
 *** Home Page
 
-- *Main Feed*: Similar to Facebook, the home page will display a global feed
+- *Main Feed*: Similar to Twitter, the home page will display a global feed
   that includes all posts on the server. This feed will not have default
   filters, suitable for small communities. Users can follow other users and
   filter the feed to show only the posts from those they follow.
@@ -52,18 +58,31 @@ Zenvi users will be able to perform the following actions:
 1. *Account and User Profile Management*: Edit personal information and configure
    account preferences.
 2. *View Main Feed (Home)*: Access the home page with the global or filtered feed.
-3. *Private Messaging*: Send and receive private messages with other users.
-4. *Chat Rooms*: Create and participate in group chat rooms.
-5. *Comment on Posts*: Comment on posts with a limit of 500 characters per
+3. *Interact with Profiles*: View and follow other users' profiles.
+4. *Private Chats*: Send and receive private messages with other users.
+5. *Chat Rooms*: Create and participate in group chat rooms.
+6. *Multimedia in Chats*: Send photos through chats.
+7. *Post*: Post content, with a limit of 800 characters per post. Include hashtags
+   to categorize content and increase visibility.
+8. *Multimedia in Posts*: Upload photos in posts, with a limit of 10 photos per
+   post.
+9. *Comment on Posts*: Comment on posts with a limit of 500 characters per
    comment.
-6. *Multimedia Posts*: Upload photos and videos in posts, with a limit of 10,000
-   characters per post.
-7. *Multimedia in Chats*: Send photos and videos through chats.
-8. *Interact with Profiles*: View and follow other users' profiles.
-9. *Mentions in Posts**: Mention other users in posts, notifying them of the
-   mention.
-10. *Notification Management*: Manage notifications including mentions in posts,
-    new followers, and messages.
+10. *Mentions in Posts*: Mention other users in posts, notifying them of the
+    mention.
+11. *Hashtags in Posts*: Use hashtags within posts to tag relevant topics, making
+    the posts searchable by those hashtags.
+12. *Search by Hashtags*: Search for posts using hashtags to find relevant
+    content.
+13. *Favorite Posts*: Mark a post as a favorite, which then will appear in the
+    favorites section.
+14. *Like a Post*: Give a like to a post.
+15. *Edit a Post*: Correct or update the content of a post, regardless of how old
+    it is.
+16. *Notification Management*: Manage notifications including mentions in posts,
+    new followers, and messages. These notifications will be in real-time.
+17. *Search by Users and Content*: Search for posts by keywords, users, and
+    content to find relevant information across the platform.
 
 *** Post Metadata
 
@@ -72,15 +91,8 @@ Posts in Zenvi will contain the following metadata:
 1. *Publication Date*: Record of the date and time the post was made.
 2. *Modification Date*: If the post was edited, the date and time of the last
    modification will be shown.
-3. *Likes*: Users can "like" any post, and the total number of "likes" will be
+3. *Likes*: Because users can "like" any post, the total number of "likes" will be
    visible on each post.
-
-*** Other
-Additionally, users will have the ability to:
-
-- *Edit their Posts*: Allowing them to correct or update the content of their
-  posts.
-- *Like Posts*: Interact with other users' posts through the "like" system.
 
 * Conclusion
 
@@ -88,3 +100,10 @@ Zenvi is envisioned as a private, self-hosted social network with a strong focus
 on privacy and community control. With these features, it seeks to offer a
 differentiated alternative to existing social networks, suitable for small
 communities that value privacy and control over their data.
+
+* Inspirations
+
+I'm using these videos as inspiration material:
+
+- https://www.youtube.com/watch?v=rOa2FKR-rGA
+- https://www.youtube.com/watch?v=hYIH1qXxJtY
