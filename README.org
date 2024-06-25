@@ -2,6 +2,9 @@
 #+subtitle: README file
 #+author: Clay Gomera
 
+<#+attr_html: :alt  :align center :class img
+[[./assets/zenvi-logo.png][Logo]]
+
 * Project Overview
 Zenvi is a private, self-hosted social network designed for small groups,
 focused on privacy and simplicity. It allows users to post, chat, and manage
