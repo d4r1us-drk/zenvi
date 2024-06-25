@@ -11,6 +11,13 @@
   intervention.
 - To simplify the development process, I will not implement video handling in
   the multimedia management of the application.
-- Other important functionalities that were missing have been added:
+- Added user authentication, email confirmation, and single sign-on
+  functionality.
+- Added other important functionalities that were missing:
   1. User and post search.
   2. Hashtags.
+  3. Reporting inappropriate posts.
+- Administrators can review and remove inappropriate content or posts.
+- Post metadata now includes publication date, modification date, likes, and
+  comments.
+- Chats will include metadata such as message date and sender information.

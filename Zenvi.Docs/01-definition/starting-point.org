@@ -35,14 +35,14 @@ suitability for the stated objectives.
 
 - *Login*: The site will only be accessible through login, emphasizing the
   privacy of the social network.
-- *Account Management*: The administrator is able to manage all accounts in the
-  server.
-- *Authentication*: Users need to confirm their email address before login into
-  the site. After registering, a confirmation email will be sent to the user.
-- *Two Factor Authentication*: Users will be able to enable TOTP based two factor
-  authentication from their profile settings, but by default email based two
-  factor authentication is enforced to every user.
-- *Single Sign-On*: Users will be able to sign-in using Google or Microsoft.
+- *Account Management*: The administrator will be able to manage all accounts in
+  the server.
+- *Authentication*: Users will need to confirm their email address before logging
+  into the site. After registering, a confirmation email will be sent to the
+  user.
+- *Two Factor Authentication*: Users will be able to enable TOTP based two-factor
+  authentication from their profile settings, but by default, email-based two-factor authentication is enforced for every user.
+- *Single Sign-On*: Users will be able to sign in using Google or Microsoft.
 
 *** Home Page
 
@@ -74,15 +74,16 @@ Zenvi users will be able to perform the following actions:
     the posts searchable by those hashtags.
 12. *Search by Hashtags*: Search for posts using hashtags to find relevant
     content.
-13. *Favorite Posts*: Mark a post as a favorite, which then will appear in the
-    favorites section.
-14. *Like a Post*: Give a like to a post.
-15. *Edit a Post*: Correct or update the content of a post, regardless of how old
-    it is.
-16. *Notification Management*: Manage notifications including mentions in posts,
-    new followers, and messages. These notifications will be in real-time.
-17. *Search by Users and Content*: Search for posts by keywords, users, and
+13. *Search by Users and Content*: Search for posts by keywords, users, and
     content to find relevant information across the platform.
+14. *Favorite Posts*: Mark a post as a favorite, which then will appear in the
+    favorites section.
+15. *Like a Post*: Give a like to a post.
+16. *Edit a Post*: Correct or update the content of a post, regardless of how old
+    it is.
+17. *Report Posts*: Report inappropriate posts to administrators for review.
+18. *Notification Management*: Manage notifications including mentions in posts,
+    new followers, and messages. These notifications will be in real-time.
 
 *** Post Metadata
 
@@ -93,6 +94,27 @@ Posts in Zenvi will contain the following metadata:
    modification will be shown.
 3. *Likes*: Because users can "like" any post, the total number of "likes" will be
    visible on each post.
+4. *Comments*: Comments on posts will be treated as posts themselves but will be
+   linked to the original post and include a mention to the original author. If
+   a comment is a reply to another comment it would be treated the same way.
+
+*** Chat Metadata
+
+Chats in Zenvi will contain the following metadata:
+
+1. *Message Date*: Record of the date and time each message was sent.
+2. *Sender Information*: The username of the sender.
+
+*** Administrator Features
+
+Administrators in Zenvi will be able to perform the following actions:
+
+1. *User Management*: Create, delete, and manage user accounts.
+2. *Content Moderation*: Review and remove inappropriate content or posts.
+3. *Review Reports*: View and manage reports of inappropriate posts submitted by
+   users.
+4. *Manage Settings*: Configure system settings, including privacy policies and
+   security measures.
 
 * Conclusion
 
