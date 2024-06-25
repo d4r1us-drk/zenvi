@@ -9,32 +9,32 @@ profiles within a closed community. Perfect for families, friends, or any
 private group seeking control over their social interactions.
 
 ** Project Goals
-- **Privacy**: Ensuring all user data is kept within a private, closed network.
-- **Simplicity**: Offering an intuitive interface with essential features for
+- *Privacy*: Ensuring all user data is kept within a private, closed network.
+- *Simplicity*: Offering an intuitive interface with essential features for
   social interaction.
-- **Extensibility**: Allowing easy integration and customization for various use
+- *Extensibility*: Allowing easy integration and customization for various use
   cases.
 
 ** Technologies Used
 
-- **ASP.NET Core MVC**: For building the server-side logic, API endpoints, and
+- *ASP.NET Core MVC*: For building the server-side logic, API endpoints, and
   user interface.
-- **.NET 8**: The latest version of the .NET framework, providing robust
+- *.NET 8*: The latest version of the .NET framework, providing robust
   performance and security features.
-- **MySQL**: A reliable and efficient relational database management system for
+- *MySQL*: A reliable and efficient relational database management system for
   data storage.
 
 * Features
 
-- **Login and Authentication**: Secure login system with email confirmation and
+- *Login and Authentication*: Secure login system with email confirmation and
   optional two-factor authentication.
-- **User and Profile Management**: Edit personal information and configure account
+- *User and Profile Management*: Edit personal information and configure account
   preferences.
-- **Posting and Commenting**: Post content, comment on posts, and use hashtags for
+- *Posting and Commenting*: Post content, comment on posts, and use hashtags for
   categorization.
-- **Private Messaging**: Send and receive private messages and participate in
+- *Private Messaging*: Send and receive private messages and participate in
   group chat rooms.
-- **Notifications**: Real-time notifications for mentions, new followers, and
+- *Notifications*: Real-time notifications for mentions, new followers, and
   messages.
 
 * License
