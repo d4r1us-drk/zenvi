@@ -5,9 +5,9 @@
 #+begin_html
 <div align="center">
   <picture>
-    <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: dark)">
-    <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: light)">
-    <img src="./assets/zenvi-logo.svg" alt="Zenvi Logo" width="100px">
+    <source srcset="./assets/zenvi-icon-dark.svg" media="(prefers-color-scheme: dark)">
+    <source srcset="./assets/zenvi-icon-light.svg" media="(prefers-color-scheme: light)">
+    <img src="./assets/zenvi-icon-dark.svg" alt="Zenvi Logo" width="100px">
   </picture>
 </div>
 #+end_html
