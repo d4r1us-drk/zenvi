@@ -2,8 +2,15 @@
 #+subtitle: README file
 #+author: Clay Gomera
 
-<#+attr_html: :alt  :align center :class img
-[[./assets/zenvi-logo.png][Logo]]
+#+begin_html
+<div align="center">
+  <picture>
+    <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: dark)">
+    <source srcset="./assets/zenvi-logo.svg" media="(prefers-color-scheme: light)">
+    <img src="./assets/zenvi-logo.svg" alt="Zenvi Logo">
+  </picture>
+</div>
+#+end_html
 
 * Project Overview
 Zenvi is a private, self-hosted social network designed for small groups,
