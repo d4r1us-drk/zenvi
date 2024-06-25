@@ -1,4 +1,3 @@
-#+title: Zenvi: A Private, Self-Hosted Social Network
 #+subtitle: README file
 #+author: Clay Gomera
 
@@ -9,6 +8,7 @@
     <source srcset="./assets/zenvi-logo-light.svg" media="(prefers-color-scheme: light)">
     <img src="./assets/zenvi-logo-dark.svg" alt="Zenvi Logo" width="400px">
   </picture>
+  <h4>A private, self hosted social network</h4>
 </div>
 #+end_html
 
