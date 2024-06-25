@@ -1,0 +1,4 @@
+#+title: Process And Objectives
+#+subtitle: User processes and objectives
+#+author: Clay Gomera
+#+description: Documentation for user processes and objectives in this application
