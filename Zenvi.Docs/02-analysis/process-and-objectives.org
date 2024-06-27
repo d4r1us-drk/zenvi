@@ -38,6 +38,7 @@ User Objectives:
 - *Create profile*: Users can set up their profile with personal details.
 - *Update profile*: Users can modify their personal information and preferences.
 - *View profiles*: Users can view the profiles of other members.
+- *Follow a profile:* Users can follow a profile of another member.
 
 ** 3. Content Creation and Interaction
 

@@ -1,0 +1,30 @@
+#+title: U07 - Create Profile
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Profile Management
+- *Objective:* /Create profile./ Users can set up their profile with personal
+  details.
+
+* Story
+
+- *Title:* Profile Creation
+- *Priority:* High
+- *Estimate:* 1 or 2 days
+- *User story:* As a new user, I want to create my profile so that I can
+  personalize my account with my details.
+- *Acceptance criteria:* Given that I have registered and logged in, when I go to
+  the profile creation page and enter my personal details, then my profile
+  should be created and saved successfully.
+- *Dependencies:*
+  - User registration and login
+  - Profile creation page

@@ -1,0 +1,30 @@
+#+title: U12 - Upload Multimedia
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Content Creation and Interaction
+- *Objective:* /Upload multimedia./ Users can add photos or videos to their posts.
+
+* Story
+
+- *Title:* Upload Multimedia
+- *Priority:* Medium
+- *Estimate:* 3 days
+- *User story:* As a user, I want to upload photos or videos to my posts so that I
+  can share visual content with others.
+- *Acceptance criteria:* Given that I am logged in and creating a post, when I
+  upload a photo or video and submit the post, then the multimedia should be
+  included in the post and visible to my followers.
+- *Dependencies:*
+  - User login
+  - Create post page
+  - Multimedia upload functionality

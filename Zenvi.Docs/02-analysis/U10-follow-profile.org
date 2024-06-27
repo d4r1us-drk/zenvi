@@ -1,0 +1,30 @@
+#+title: U10 - Follow a Profile
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Profile Management
+- *Objective:* /Follow a profile./ Users can follow a profile of another member.
+
+* Story
+
+- *Title:* Follow a Profile
+- *Priority:* Medium
+- *Estimate:* 2 days
+- *User story:* As a user, I want to follow another user's profile so that I can
+  see their updates and posts in my feed.
+- *Acceptance criteria:* Given that I am logged in, when I click the follow button
+  on another user's profile, then I should start following them and see their
+  posts in my feed.
+- *Dependencies:*
+  - User login
+  - Profile pages
+  - Follow functionality

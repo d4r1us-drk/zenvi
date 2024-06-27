@@ -1,0 +1,30 @@
+#+title: U24 - Moderate Content
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Management
+- *Objective:* /Moderate content./ Administrators can review and manage the content
+  posted by users.
+
+* Story
+
+- *Title:* Moderate Content
+- *Priority:* High
+- *Estimate:* 4 days
+- *User story:* As an administrator, I want to moderate content so that I can
+  ensure all posts comply with community guidelines.
+- *Acceptance criteria:* Given that I am logged in as an administrator, when I go
+  to the content moderation section, then I should be able to review, approve,
+  or remove posts that violate the guidelines.
+- *Dependencies:*
+  - Admin login
+  - Content moderation functionality

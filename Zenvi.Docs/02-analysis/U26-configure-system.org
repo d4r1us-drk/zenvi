@@ -1,0 +1,30 @@
+#+title: U26 - Configure System Settings
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Management
+- *Objective:* /Configure system settings./ Administrators can set and adjust system
+  settings and policies.
+
+* Story
+
+- *Title:* Configure System Settings
+- *Priority:* Medium
+- *Estimate:* 4 days
+- *User story:* As an administrator, I want to configure system settings so that I
+  can customize the platform's functionality and policies.
+- *Acceptance criteria:* Given that I am logged in as an administrator, when I go
+  to the system settings section, then I should be able to update settings and
+  apply new policies.
+- *Dependencies:*
+  - Admin login
+  - System settings functionality

@@ -1,0 +1,30 @@
+#+title: U16 - Send Private Messages
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Messaging
+- *Objective:* /Send private messages./ Users can communicate privately with other
+  users.
+
+* Story
+
+- *Title:* Send Private Messages
+- *Priority:* High
+- *Estimate:* 3 days
+- *User story:* As a user, I want to send private messages so that I can
+  communicate directly with other users.
+- *Acceptance criteria:* Given that I am logged in, when I go to the messaging
+  section and send a private message, then the recipient should receive the
+  message in their inbox.
+- *Dependencies:*
+  - User login
+  - Messaging functionality

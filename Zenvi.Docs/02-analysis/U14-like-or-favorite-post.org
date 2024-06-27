@@ -1,0 +1,31 @@
+#+title: U14 - Like or Favorite Posts
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Content Creation and Interaction
+- *Objective:* /Like or favorite posts./ Users can express appreciation for posts by
+  liking or favoriting them.
+
+* Story
+
+- *Title:* Like or Favorite Posts
+- *Priority:* Medium
+- *Estimate:* 2 days
+- *User story:* As a user, I want to like or favorite posts so that I can show my
+  appreciation for the content.
+- *Acceptance criteria:* Given that I am logged in, when I click the like or
+  favorite button on a post, then my action should be recorded and reflected on
+  the post.
+- *Dependencies:*
+  - User login
+  - Post viewing page
+  - Like and favorite functionality

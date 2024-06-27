@@ -1,0 +1,29 @@
+#+title: U15 - Share Posts
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage:fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Content Creation and Interaction
+- *Objective:* /Share posts./ Users can share posts with others.
+
+* Story
+
+- *Title:* Share Posts
+- *Priority:* Medium
+- *Estimate:* 2 days
+- *User story:* As a user, I want to share posts so that I can distribute
+  interesting content to my followers.
+- *Acceptance criteria:* Given that I am logged in, when I click the share button
+  on a post, then it should be shared to my profile or with my followers.
+- *Dependencies:*
+  - User login
+  - Post viewing page
+  - Share functionality

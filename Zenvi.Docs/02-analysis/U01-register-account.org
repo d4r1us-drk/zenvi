@@ -1,0 +1,30 @@
+#+title: U01 - Register Account
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* User Registration and Authentication
+- *Objective:* /Register new account./ Users can create a new account by providing
+  necessary information.
+
+* Story
+
+- *Title:* User Registration
+- *Priority:* High
+- *Estimate:* 1 day
+- *User story:* As a new user, I want to register a new account so that I can
+  access the platform.
+- *Acceptance criteria:* Given that I am on the registration page, when I enter my
+  details and submit the form, then I should receive a confirmation email which
+  I will confirm, and then see a message that my registration is successful.
+- *Dependencies:*
+  - User registration page
+  - Email service setup

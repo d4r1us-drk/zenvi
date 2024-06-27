@@ -1,0 +1,28 @@
+#+title: U09 - View Profiles
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Profile Management
+- *Objective:* /View profiles./ Users can view the profiles of other members.
+
+* Story
+
+- *Title:* Profile Viewing
+- *Priority:* Medium
+- *Estimate:* 2 days
+- *User story:* As a user, I want to view other users' profiles so that I can
+  learn more about them.
+- *Acceptance criteria:* Given that I am logged in, when I click on another user's
+  profile, then I should be able to see their public information and posts.
+- *Dependencies:*
+  - User login
+  - Profile pages

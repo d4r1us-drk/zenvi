@@ -1,0 +1,29 @@
+#+title: U03 - Log In
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* User Registration and Authentication
+- *Objective:* /Log in./ Users can access their account using their credentials.
+
+* Story
+
+- *Title:* User Login
+- *Priority:* High
+- *Estimate:* Less than a day
+- *User story:* As a user, I want to log in with my credentials so that I can
+  access my account.
+- *Acceptance criteria:* Given that I am on the login page, when I enter my
+  credentials and submit the form, then I should be logged in and redirected to
+  the dashboard.
+- *Dependencies:*
+  - Registration and email verification
+  - Login page

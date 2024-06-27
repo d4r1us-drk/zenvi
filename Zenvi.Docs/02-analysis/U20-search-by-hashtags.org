@@ -1,0 +1,29 @@
+#+title: U20 - Search by Hashtags
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Search
+- *Objective:* /Search by hashtags./ Users can find content by using specific
+  hashtags.
+
+* Story
+
+- *Title:* Search by Hashtags
+- *Priority:* High
+- *Estimate:* 3 days
+- *User story:* As a user, I want to search for content by hashtags so that I can
+  find posts related to specific topics.
+- *Acceptance criteria:* Given that I am logged in, when I enter a hashtag in the
+  search bar, then I should see a list of posts tagged with that hashtag.
+- *Dependencies:*
+  - User login
+  - Search functionality

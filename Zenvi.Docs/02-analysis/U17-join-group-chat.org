@@ -1,0 +1,29 @@
+#+title: U17 - Join Group Chats
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Messaging
+- *Objective:* /Join group chats./ Users can participate in group discussions.
+
+* Story
+
+- *Title:* Join Group Chats
+- *Priority:* Medium
+- *Estimate:* 3 days
+- *User story:* As a user, I want to join group chats so that I can participate in
+  discussions with multiple users.
+- *Acceptance criteria:* Given that I am logged in, when I join a group chat, then
+  I should be able to see the messages and contribute to the conversation.
+- *Dependencies:*
+  - User login
+  - Group chat functionality
+

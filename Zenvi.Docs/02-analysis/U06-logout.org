@@ -1,0 +1,27 @@
+#+title: U06 - Log Out
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* User Registration and Authentication
+- *Objective:* /Log out./ Users can securely sign out of their account.
+
+* Story
+
+- *Title:* User Logout
+- *Priority:* High
+- *Estimate:* Less than a day
+- *User story:* As a logged-in user, I want to log out so that I can end my
+  session securely.
+- *Acceptance criteria:* Given that I am logged in, when I click on the logout
+  button, then I should be logged out and redirected to the login page.
+- *Dependencies:*
+  - Login functionality
