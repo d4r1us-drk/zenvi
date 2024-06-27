@@ -1,6 +1,13 @@
 #+title: Process And Objectives
-#+subtitle: User processes and objectives
+#+subtitle: Zenix User processes and objectives
 #+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
 #+description: Document detailing the main processes and objectives for the software project
 
 * Project Context
@@ -14,48 +21,59 @@ users aim to achieve within the system.
 ** 1. User Registration and Authentication
 
 User Objectives:
-- Register new account
-- Verify email
-- Log in
-- Reset password
-- Enable two-factor authentication
-- Log out
+- *Register new account*: Users can create a new account by providing necessary
+  information.
+- *Verify email*: Users must confirm their email address to activate their
+  account.
+- *Log in*: Users can access their account using their credentials.
+- *Reset password*: Users can recover access by resetting their password if
+  forgotten.
+- *Enable two-factor authentication*: Users can add an extra layer of security to
+  their account.
+- *Log out*: Users can securely sign out of their account.
 
 ** 2. Profile Management
 
 User Objectives:
-- Create profile
-- Update profile
-- View profiles
+- *Create profile*: Users can set up their profile with personal details.
+- *Update profile*: Users can modify their personal information and preferences.
+- *View profiles*: Users can view the profiles of other members.
 
 ** 3. Content Creation and Interaction
 
 User Objectives:
-- Create posts
-- Upload multimedia
-- Comment on posts
-- Like or favorite posts
-- Share posts
+- *Create posts*: Users can publish new content on their feed.
+- *Upload multimedia*: Users can add photos or videos to their posts.
+- *Comment on posts*: Users can leave comments on other users' posts.
+- *Like or favorite posts*: Users can express appreciation for posts by liking or
+  favoriting them.
+- *Share posts*: Users can share posts with others.
 
 ** 4. Messaging
 
 User Objectives:
-- Send private messages
-- Join group chats
-- Create group chats
-- Manage notifications
+- *Send private messages*: Users can communicate privately with other users.
+- *Join group chats*: Users can participate in group discussions.
+- *Create group chats*: Users can initiate new group chat rooms.
+- *Manage notifications*: Users can control their notifications for messages and
+  interactions.
 
 ** 5. Search
 
 User Objectives:
-- Search by hashtags
-- Search posts, users, keywords
-- View trending topics
+- *Search by hashtags*: Users can find content by using specific hashtags.
+- *Search posts, users, keywords*: Users can search for posts, other users, or
+  keywords.
+- *View trending topics*: Users can see popular topics and posts.
 
 ** 6. Management
 
 User Objectives:
-- Manage user accounts
-- Moderate content
-- Handle moderation reports
-- Configure system settings
+- *Manage user accounts*: Administrators can create, delete, and manage user
+  accounts.
+- *Moderate content*: Administrators can review and manage the content posted by
+  users.
+- *Handle moderation reports*: Administrators can handle reports of inappropriate
+  content.
+- *Configure system settings*: Administrators can set and adjust system settings
+  and policies.
