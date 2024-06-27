@@ -41,7 +41,8 @@ suitability for the stated objectives.
   into the site. After registering, a confirmation email will be sent to the
   user.
 - *Two Factor Authentication*: Users will be able to enable TOTP based two-factor
-  authentication from their profile settings, but by default, email-based two-factor authentication is enforced for every user.
+  authentication from their profile settings, but by default, email-based
+  two-factor authentication is enforced for every user.
 - *Single Sign-On*: Users will be able to sign in using Google or Microsoft.
 
 *** Home Page
