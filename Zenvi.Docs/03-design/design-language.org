@@ -24,3 +24,25 @@
 6. ex2: #EAE6D2
 7. ex3: #E5C085
 8. ex4: #7D8A99
+
+* Logo
+** Light Mode:
+#+begin_html
+<img src="../../assets/zenvi-logo-light.svg" alt="Zenvi Logo" width="600px">
+#+end_html
+
+** Dark Mode:
+#+begin_html
+<img src="../../assets/zenvi-logo-dark.svg" alt="Zenvi Logo" width="600px">
+#+end_html
+
+* Icon
+** Light Mode:
+#+begin_html
+<img src="../../assets/zenvi-icon-light.svg" alt="Zenvi Logo" width="600px">
+#+end_html
+
+** Dark Mode:
+#+begin_html
+<img src="../../assets/zenvi-icon-dark.svg" alt="Zenvi Logo" width="600px">
+#+end_html
