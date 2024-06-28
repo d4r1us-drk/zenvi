@@ -39,10 +39,10 @@
 * Icon
 ** Light Mode:
 #+begin_html
-<img src="../../assets/zenvi-icon-light.svg" alt="Zenvi Logo" width="600px">
+<img src="../../assets/zenvi-icon-light.svg" alt="Zenvi Logo" width="300px">
 #+end_html
 
 ** Dark Mode:
 #+begin_html
-<img src="../../assets/zenvi-icon-dark.svg" alt="Zenvi Logo" width="600px">
+<img src="../../assets/zenvi-icon-dark.svg" alt="Zenvi Logo" width="300px">
 #+end_html
