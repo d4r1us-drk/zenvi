@@ -1,0 +1,30 @@
+#+title: U28 - View Home Feed
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Content Creation and Interaction
+- *Objective:* /View home feed./ Users can see a feed of posts from users they
+  follow and global posts.
+
+* Story
+
+- *Title:* View Home Feed
+- *Priority:* High
+- *Estimate:* 3 days
+- *User story:* As a user, I want to view my home feed so that I can see posts
+  from users I follow and global posts.
+- *Acceptance criteria:* Given that I am logged in, when I navigate to the home
+  feed, then I should see posts from users I follow and global posts in a
+  chronological order.
+- *Dependencies:*
+  - User login
+  - Home feed functionality

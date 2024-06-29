@@ -1,0 +1,105 @@
+#+title: Data Design
+#+subtitle: Zenix data structure design
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+#+description: Document detailing the data objects and relations in the project
+
+* Identified Entities
+** User Profile
+An user has the following data:
+- username
+- email
+- password: the hashed password of the user
+- name
+- surname
+- date of birth
+- bio: the user's profile description
+- profile picture
+- banner picture
+- role: an user can be either an administrator or a regular user
+
+*** Relations
+An user is related to:
+- posts: an user can have multiple posts.
+- following: an user can follow multiple users.
+- followers: an user can have multiple followers.
+- messages: an user can send multiple messages to another user.
+- group chats: an user can have multiple group chats.
+- group messages: within a group chat, an user can send a message to multiple
+  users.
+- notifications: an user can have multiple notifications from multiple sources.
+
+** Post
+A post has the following data
+- user: the user that created the post
+- content
+- media
+- post type: either top or a comment/reply
+- parent post: if it's a comment/reply, the post that it's being commented to
+- created at: the timestamp when the post was created
+- updated at: if the post is ever updated, the timestamp when this occured
+
+*** Relations
+A post is related to:
+- users: a post is created by a user
+- posts: a post can have other posts as comments/replies
+- likes: a post can have many likes
+- hashtags: grabbed from the content, a post can have multiple hashtags
+- media: a post can have many pictures
+
+** Follow
+- user1
+- user2
+- created at: timestamp in which an user followed the other.
+
+*** Relations
+- users: the source user and the target user in this relation/interaction.
+
+*** Considerations
+- For obvious reasons, user1 cannot be the same as user2.
+
+This would be a way to figure out if two users follow each other:
+
+SQL:
+#+BEGIN_SRC sql
+SELECT
+    uf1.sourceId AS user1,
+    uf1.targetId AS user2,
+    uf2.sourceId AS user2,
+    uf2.targetId AS user1
+FROM
+    user_follower uf1
+JOIN
+    user_follower uf2
+ON
+    uf1.sourceId = uf2.targetId
+    AND uf1.targetId = uf2.sourceId
+WHERE
+    uf1.sourceId = userId1
+    AND uf1.targetId = userId2
+    AND uf2.sourceId = userId2
+    AND uf2.targetId = userId1;
+#+END_SRC
+
+C# method with Entity Framework:
+#+BEGIN_SRC csharp
+public bool AreUsersFollowingEachOther(long userId1, long userId2)
+{
+    using (var context = new MyDbContext())
+    {
+        var followsEachOther = context.UserFollowers
+            .Any(uf1 => uf1.SourceId == userId1 && uf1.TargetId == userId2 &&
+                        context.UserFollowers.Any(uf2 => uf2.SourceId == userId2 && uf2.TargetId == userId1));
+
+        return followsEachOther;
+    }
+}
+#+END_SRC
+
+** Like

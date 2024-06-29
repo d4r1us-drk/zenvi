@@ -123,6 +123,7 @@ Administrators in Zenvi will be able to perform the following actions:
    users.
 4. *Manage Settings*: Configure system settings, including privacy policies and
    security measures.
+5. *Send notice*: Send a notice to all users in the server through a notification.
 
 * Conclusion
 

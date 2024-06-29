@@ -18,6 +18,7 @@
   2. Hashtags.
   3. Reporting inappropriate posts.
 - Administrators can review and remove inappropriate content or posts.
+- Administratos can send a global notice message to all users in the server.
 - Post metadata now includes publication date, modification date, likes, and
   comments.
 - Chats will include metadata such as message date and sender information.

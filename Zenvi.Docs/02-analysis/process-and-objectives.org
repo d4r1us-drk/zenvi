@@ -49,6 +49,8 @@ User Objectives:
 - *Like or favorite posts*: Users can express appreciation for posts by liking or
   favoriting them.
 - *Share posts*: Users can share posts with others.
+- *View home feed*: Users can see a feed of posts from users they follow and
+  global posts.
 
 ** 4. Messaging
 
@@ -78,3 +80,5 @@ User Objectives:
   content.
 - *Configure system settings*: Administrators can set and adjust system settings
   and policies.
+- *Send notice*: Administrators can send a notice to all users in the social
+  network through a notification.
