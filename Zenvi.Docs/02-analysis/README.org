@@ -34,4 +34,6 @@ analysis process. The following files at this point have been made:
 - [[./U26-configure-system.org][User Story 26 - Configure System Settings]]
 
 * User Story Dependency Diagram:
-[[./user-story-dependency-diagram.png][User Story Dependency Diagram]]
+#+begin_html
+<img src="./user-story-dependency-diagram" alt="User Story Dependency Diagram" width="600px">
+#+end_html
