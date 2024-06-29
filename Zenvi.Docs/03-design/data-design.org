@@ -87,7 +87,8 @@ A hashtag is related to:
 - *post*: the post that contains this hashtag
 
 *** Media
-This is a multimedia element that the user can upload for multiple purposes. It is composed of:
+This is a multimedia element that the user can upload for multiple purposes. It
+is composed of:
 - *media url*: the path to the image in the server
 - *type*: the media type, can be either video or photo
 - *source*: where the media is being used
