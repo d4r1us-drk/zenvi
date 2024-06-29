@@ -27,13 +27,13 @@ private group seeking control over their social interactions.
 
 ** Technologies Used
 
-- *Blazor*: For building the server-side logic, API endpoints, and
-  user interface.
+- *Blazor & ASP.NET Core*: For building the server-side logic, and user interface.
 - *.NET 8*: The latest version of the .NET framework, providing robust
   performance and security features.
 - *SQL Server*: A reliable and efficient relational database management system for
   data storage.
 - *Docker:* The perfect way to deploy things.
+- *Microsoft Identity:* For easy and efficient authentication and authorization.
 
 * Features
 
