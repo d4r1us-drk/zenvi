@@ -32,3 +32,6 @@ analysis process. The following files at this point have been made:
 - [[./U24-moderate-content.org][User Story 24 - Moderate Content]]
 - [[./U25-handle-reports.org][User Story 25 - Handle Moderation Reports]]
 - [[./U26-configure-system.org][User Story 26 - Configure System Settings]]
+
+* User Story Dependency Diagram:
+[[./user-story-pependency-diagram.png][User Story Dependency Diagram]]
