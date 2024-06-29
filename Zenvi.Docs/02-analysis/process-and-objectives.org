@@ -38,7 +38,7 @@ User Objectives:
 - *Create profile*: Users can set up their profile with personal details.
 - *Update profile*: Users can modify their personal information and preferences.
 - *View profiles*: Users can view the profiles of other members.
-- *Follow a profile:* Users can follow a profile of another member.
+- *Follow a profile*: Users can follow a profile of another member.
 
 ** 3. Content Creation and Interaction
 
@@ -82,3 +82,5 @@ User Objectives:
   and policies.
 - *Send notice*: Administrators can send a notice to all users in the social
   network through a notification.
+- *Ban user*: Administrators can ban users for a specified duration for violating
+  policies.

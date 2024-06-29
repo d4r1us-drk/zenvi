@@ -1,1 +1,13 @@
-# Diseño de Software
+#+title: Design Documentation
+#+author: Clay Gomera
+#+description: README file for the design documentation folder
+
+This folder's main purpose is to host all the documentation for the design process of the Zenvi project. The following files at this point have been made:
+
+- [[./data-design.org][Data Design]]: The data design document details the data objects and
+  relationships in the project, outlining the structure and how various entities
+  interact with each other.
+- [[./design-language.org][Design Language]]: The design language document specifies the visual and
+  interaction design principles, including color schemes, typography, layout
+  guidelines, and user interface components to ensure consistency across the
+  application.

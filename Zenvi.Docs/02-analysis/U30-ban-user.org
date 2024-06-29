@@ -1,0 +1,30 @@
+#+title: U30 - Ban User
+#+subtitle: User Story
+#+author: Clay Gomera
+#+latex_class: article
+#+latex_class_options: [letterpaper,12pt]
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+latex_header: \usepackage[fontspec}
+#+latex_header: \setmainfont{Carlito} % or any other font you prefer
+#+latex_compiler: xelatex
+#+OPTIONS: toc:nil date:nil num:nil
+
+* Context
+
+- *Process:* Management
+- *Objective:* /Ban user./ Administrators can ban users for a specified duration for
+  violating policies.
+
+* Story
+
+- *Title:* Ban User
+- *Priority:* High
+- *Estimate:* 3 days
+- *User story:* As an administrator, I want to ban users for a specified duration
+  so that I can enforce platform policies and maintain a safe community.
+- *Acceptance criteria:* Given that I am logged in as an administrator, when I ban
+  a user, then the user should be unable to log in or interact with the platform
+  until the ban duration expires.
+- *Dependencies:*
+  - Admin login
+  - Ban functionality

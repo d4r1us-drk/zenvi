@@ -19,6 +19,7 @@
   3. Reporting inappropriate posts.
 - Administrators can review and remove inappropriate content or posts.
 - Administratos can send a global notice message to all users in the server.
+- Administratos can now ban an user for violating policies.
 - Post metadata now includes publication date, modification date, likes, and
   comments.
 - Chats will include metadata such as message date and sender information.
