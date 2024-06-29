@@ -10,7 +10,7 @@
 #+OPTIONS: toc:nil date:nil num:nil
 #+description: Documentation document that describes the initial idea for this project
 
-* Project Context
+** Project Context
 
 Zenvi is the final project for the Web Application Development course. The
 choice of this project arose from the top 100 most visited websites according to
@@ -18,9 +18,9 @@ Similarweb, a recommendation from the professor to inspire us in the type of
 website to develop. My choice was to create a clone of Twitter, a social network
 for microblogging and private messaging.
 
-* Project Details
+** Project Details
 
-** Adaptation
+*** Adaptation
 
 To differentiate the Zenvi project from what already exists, it has been decided
 to focus on the following aspects:
@@ -33,12 +33,12 @@ to focus on the following aspects:
   overwhelming amount of features, focusing solely on the social aspect of the
   platform.
 
-** Ideas
+*** Ideas
 
 Zenvi will include a series of specific features to ensure its functionality and
 suitability for the stated objectives.
 
-*** Access and Administration
+**** Access and Administration
 
 - *Login*: The site will only be accessible through login, emphasizing the
   privacy of the social network.
@@ -52,14 +52,14 @@ suitability for the stated objectives.
   two-factor authentication is enforced for every user.
 - *Single Sign-On*: Users will be able to sign in using Google or Microsoft.
 
-*** Home Page
+**** Home Page
 
 - *Main Feed*: Similar to Twitter, the home page will display a global feed
   that includes all posts on the server. This feed will not have default
   filters, suitable for small communities. Users can follow other users and
   filter the feed to show only the posts from those they follow.
 
-*** Main Features
+**** Main Features
 
 Zenvi users will be able to perform the following actions:
 
@@ -93,7 +93,7 @@ Zenvi users will be able to perform the following actions:
 18. *Notification Management*: Manage notifications including mentions in posts,
     new followers, and messages. These notifications will be in real-time.
 
-*** Post Metadata
+**** Post Metadata
 
 Posts in Zenvi will contain the following metadata:
 
@@ -106,14 +106,14 @@ Posts in Zenvi will contain the following metadata:
    linked to the original post and include a mention to the original author. If
    a comment is a reply to another comment it would be treated the same way.
 
-*** Chat Metadata
+**** Chat Metadata
 
 Chats in Zenvi will contain the following metadata:
 
 1. *Message Date*: Record of the date and time each message was sent.
 2. *Sender Information*: The username of the sender.
 
-*** Administrator Features
+**** Administrator Features
 
 Administrators in Zenvi will be able to perform the following actions:
 
@@ -126,14 +126,14 @@ Administrators in Zenvi will be able to perform the following actions:
 5. *Send notice*: Send a notice to all users in the server through a notification.
 6. *Ban User*: Ban users for a specified duration for violating policies.
 
-* Conclusion
+** Conclusion
 
 Zenvi is envisioned as a private, self-hosted social network with a strong focus
 on privacy and community control. With these features, it seeks to offer a
 differentiated alternative to existing social networks, suitable for small
 communities that value privacy and control over their data.
 
-* Inspirations
+** Inspirations
 
 I'm using these videos as inspiration material:
 

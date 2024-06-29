@@ -10,9 +10,9 @@
 #+OPTIONS: toc:nil date:nil num:nil
 #+description: Document detailing the data objects and relations in the project
 
-* Identified Entities and Relations
+** Identified Entities and Relations
 
-** User Profile
+*** User Profile
 A user has the following data:
 - *username*
 - *email*
@@ -26,7 +26,7 @@ A user has the following data:
 - *role*: a user can be either an administrator or a regular user
 - *banned* true if the user has been banned
 
-*** Relations
+**** Relations
 A user is related to:
 - *posts*: a user can have multiple posts.
 - *following*: a user can follow multiple users.
@@ -37,7 +37,7 @@ A user is related to:
 - *notifications*: a user can have multiple notifications from multiple sources.
 - *bans*: a user can be banned multiple times.
 
-** Post
+*** Post
 A post has the following data:
 - *user*
 - *content*
@@ -48,7 +48,7 @@ A post has the following data:
 - *created at*: the timestamp when the post was created
 - *updated at*: if the post is ever updated, the timestamp when this occurred
 
-*** Relations
+**** Relations
 A post is related to:
 - *user*: a post is created by a user
 - *posts*: a post can have other posts as comments/replies
@@ -56,48 +56,48 @@ A post is related to:
 - *hashtags*: extracted from the content, a post can have multiple hashtags
 - *media*: a post can have many pictures
 
-** Follow
+*** Follow
 A follow represents a relationship between two users:
 - *source user*
 - *target user*
 - *created at*: the timestamp when a user followed the other
 
-*** Relations
+**** Relations
 - *users*: the source user and the target user in this relationship
 
-** Like/Favorite
+*** Like/Favorite
 A like acts as a boost for a post and a favorite as a saved post. It is composed of:
 - *post*
 - *user*
 - *type*: either like or favorite
 - *created at*: the timestamp when the user liked or favorited the post
 
-*** Relations
+**** Relations
 A like/favorite is related to:
 - *user*: the user who is creating the like or favorite
 - *post*: the post that the user is liking or marking as favorite
 
-** Hashtag
+*** Hashtag
 A post can have one or more hashtags. A hashtag is composed of:
 - *post*
 - *tag*: the hashtag string (can't have spaces)
 
-*** Relations
+**** Relations
 A hashtag is related to:
 - *post*: the post that contains this hashtag
 
-** Media
+*** Media
 This is a multimedia element that the user can upload for multiple purposes. It is composed of:
 - *media url*: the path to the image in the server
 - *type*: the media type, can be either video or photo
 - *source*: where the media is being used
 - *created at*: a useful timestamp that indicates when the media was sent or uploaded
 
-*** Relations
+**** Relations
 A multimedia element is related to:
 - *post/message* (source)
 
-** Private Message
+*** Private Message
 A private message has the following data:
 - *sender*
 - *receiver*
@@ -105,13 +105,13 @@ A private message has the following data:
 - *media*: a list of multimedia elements
 - *created at*: the timestamp when the message was sent
 
-*** Relations
+**** Relations
 A private message is related to:
 - *sender*: the user who sends the message
 - *receiver*: the user who receives the message
 - *media*: the multimedia elements included in the message
 
-** Group Chat
+*** Group Chat
 A group chat has the following data:
 - *created by*: the user who created the group chat
 - *title*
@@ -120,13 +120,13 @@ A group chat has the following data:
 - *created at*: the timestamp when the group chat was created
 - *updated at*: the timestamp when the group chat was last updated
 
-*** Relations
+**** Relations
 A group chat is related to:
 - *members*: a list of users who are members of the group chat
 - *messages*: a list of messages in the group chat
 - *media*: the group picture
 
-** Group Message
+*** Group Message
 A group message has the following data:
 - *group chat*: the group chat where the message is posted
 - *sender*: the user who sends the message
@@ -134,36 +134,36 @@ A group message has the following data:
 - *media*: a list of multimedia elements
 - *created at*: the timestamp when the message was sent
 
-*** Relations
+**** Relations
 A group message is related to:
 - *group chat*: the group chat where the message is posted
 - *sender*: the user who sends the message
 - *media*: the multimedia elements included in the message
 
-** Group Member
+*** Group Member
 A group member has the following data:
 - *group chat*: the group chat the user belongs to
 - *user*: the user who is a member of the group chat
 - *role*: the role of the user in the group (e.g., admin, member)
 - *joined at*: the timestamp when the user joined the group
 
-*** Relations
+**** Relations
 A group member is related to:
 - *group chat*: the group chat the user belongs to
 - *user*: the user who is a member of the group chat
 
-** Notification
+*** Notification
 A notification has the following data:
 - *user*: the user who receives the notification
 - *type*: the type of notification (e.g., new message, new follower)
 - *message*: the content of the notification
 - *created at*: the timestamp when the notification was created
 
-*** Relations
+**** Relations
 A notification is related to:
 - *user*: the user who receives the notification
 
-** Report
+*** Report
 A report has the following data:
 - *reportId*
 - *reportedBy (user)*
@@ -172,12 +172,12 @@ A report has the following data:
 - *status*
 - *created at*
 
-*** Relations
+**** Relations
 A report is related to:
 - *reportedBy*: the user who reported the post
 - *post*: the post being reported
 
-** Ban
+*** Ban
 A ban has the following data:
 - *user*: the user who is banned
 - *banned at*: the timestamp when the user was banned
@@ -185,7 +185,7 @@ A ban has the following data:
 - *reason*: the reason for the ban
 - *report*: the report that triggered the ban (nullable)
 
-*** Relations
+**** Relations
 A ban is related to:
 - *user*: the user who is banned
 - *report*: the report that triggered the ban (if applicable)
