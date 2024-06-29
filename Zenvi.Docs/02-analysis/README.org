@@ -35,5 +35,5 @@ analysis process. The following files at this point have been made:
 
 * User Story Dependency Diagram:
 #+begin_html
-<img src="./user-story-dependency-diagram.png" alt="User Story Dependency Diagram" width="600px">
+<img src="./user-story-dependency-diagram.png" alt="User Story Dependency Diagram" width="800px">
 #+end_html
