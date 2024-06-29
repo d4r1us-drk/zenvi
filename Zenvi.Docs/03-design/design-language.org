@@ -28,21 +28,21 @@
 * Logo
 ** Light Mode:
 #+begin_html
-<img src="../../assets/zenvi-logo-light.svg" alt="Zenvi Logo" width="600px">
+<img src="../../assets/zenvi-logo-light.png" alt="Zenvi Logo" width="600px">
 #+end_html
 
 ** Dark Mode:
 #+begin_html
-<img src="../../assets/zenvi-logo-dark.svg" alt="Zenvi Logo" width="600px">
+<img src="../../assets/zenvi-logo-dark.png" alt="Zenvi Logo" width="600px">
 #+end_html
 
 * Icon
 ** Light Mode:
 #+begin_html
-<img src="../../assets/zenvi-icon-light.svg" alt="Zenvi Logo" width="300px">
+<img src="../../assets/zenvi-icon-light.png" alt="Zenvi Logo" width="300px">
 #+end_html
 
 ** Dark Mode:
 #+begin_html
-<img src="../../assets/zenvi-icon-dark.svg" alt="Zenvi Logo" width="300px">
+<img src="../../assets/zenvi-icon-dark.png" alt="Zenvi Logo" width="300px">
 #+end_html
