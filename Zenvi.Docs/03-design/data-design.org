@@ -65,6 +65,47 @@ A follow represents a relationship between two users:
 **** Relations
 - *users*: the source user and the target user in this relationship
 
+**** Considerations
+- For obvious reasons, the source user cannot be the same as the target user.
+
+This is how you can determine if two users follow each other:
+
+SQL:
+#+BEGIN_SRC sql
+SELECT
+    uf1.sourceId AS user1,
+    uf1.targetId AS user2,
+    uf2.sourceId AS user2,
+    uf2.targetId AS user1
+FROM
+    user_follower uf1
+JOIN
+    user_follower uf2
+ON
+    uf1.sourceId = uf2.targetId
+    AND uf1.targetId = uf2.sourceId
+WHERE
+    uf1.sourceId = userId1
+    AND uf1.targetId = userId2
+    AND uf2.sourceId = userId2
+    AND uf2.targetId = userId1;
+#+END_SRC
+
+C# method with Entity Framework:
+#+BEGIN_SRC csharp
+public bool AreUsersFollowingEachOther(long userId1, long userId2)
+{
+    using (var context = new MyDbContext())
+    {
+        var followsEachOther = context.UserFollowers
+            .Any(uf1 => uf1.SourceId == userId1 && uf1.TargetId == userId2 &&
+                        context.UserFollowers.Any(uf2 => uf2.SourceId == userId2 && uf2.TargetId == userId1));
+
+        return followsEachOther;
+    }
+}
+#+END_SRC
+
 *** Like/Favorite
 A like acts as a boost for a post and a favorite as a saved post. It is composed of:
 - *post*
