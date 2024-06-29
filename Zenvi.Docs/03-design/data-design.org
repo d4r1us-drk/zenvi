@@ -189,3 +189,7 @@ A ban has the following data:
 A ban is related to:
 - *user*: the user who is banned
 - *report*: the report that triggered the ban (if applicable)
+
+** Inspirations
+I used these examples and guides as inspiration:
+1. [[https://mysql.tutorials24x7.com/blog/guide-to-design-database-for-social-network-system-in-mysql]]
