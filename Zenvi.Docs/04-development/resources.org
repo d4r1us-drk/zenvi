@@ -5,3 +5,5 @@ List of stuff I read or watched to develop this:
 - [[https://www.youtube.com/watch?v=C_bYPn-OTtw][.NET 8 Blazor🔥All Render Modes (SSR, Server, WebAssembly, Auto) Explained for Beginners]]
 - [[https://www.youtube.com/watch?v=w8imy7LT9zY][CRUD w/ Blazor in .NET 8 🔥 All Render Modes (SSR, Server, Wasm, Auto), Entity Framework & SQL Server]]
 - [[https://www.youtube.com/watch?v=tNzSuwV62Lw][.NET 8 Blazor🔥Authentication & Authorization with Identity]]
+- [[https://rjdudley.com/installing-asp-net-core-identity-in-postgresql/][Installing ASP.NET Core Identity in PostgreSQL
+]]
