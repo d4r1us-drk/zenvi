@@ -73,13 +73,13 @@
 </div>
 
 @code {
-    private IEnumerable<IdentityError>? identityErrors;
+    private IEnumerable<IdentityError>? _identityErrors;
 
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
 
-    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+    private string? Message => _identityErrors is null ? null : $"Error: {string.Join(", ", _identityErrors.Select(error => error.Description))}";
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -96,7 +96,7 @@
 
         if (!result.Succeeded)
         {
-            identityErrors = result.Errors;
+            _identityErrors = result.Errors;
             return;
         }
 
@@ -163,9 +163,17 @@
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
 
-        [Required] [Display(Name = "Name")] public string Name { get; set; } = "";
+        [Required]
+        [StringLength(255, ErrorMessage = "Why is your name so loooooooong?")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Name")]
+        public string? Name { get; set; }
 
-        [Required] [Display(Name = "Surname")] public string Surname { get; set; } = "";
+        [Required]
+        [StringLength(255, ErrorMessage = "Why is your surname so loooooooong?")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Surname")]
+        public string? Surname { get; set; }
 
         [Required]
         [Display(Name = "Date of Birth")]

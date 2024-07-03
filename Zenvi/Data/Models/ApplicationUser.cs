@@ -19,7 +19,7 @@ public class ApplicationUser : IdentityUser
 
     public bool Banned { get; set; }
 
-    public Media? ProfilePicture { get; set; }
+    public string? ProfilePicture { get; set; }
 
-    public Media? BannerPicture { get; set; }
+    public string? BannerPicture { get; set; }
 }

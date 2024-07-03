@@ -1,8 +1,8 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+﻿# Use the official ASP.NET Core runtime image from Microsoft:
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 8080  # HTTP port
+EXPOSE 8443  # HTTPS port
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -15,10 +15,10 @@ WORKDIR "/src/Zenvi"
 RUN dotnet build "Zenvi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "Zenvi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
-WORKDIR /app
+RUN groupadd -r zenvigroup && useradd -r -g zenvigroup zenviuser
 COPY --from=publish /app/publish .
+USER zenviuser
 ENTRYPOINT ["dotnet", "Zenvi.dll"]

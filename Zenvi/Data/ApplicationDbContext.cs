@@ -8,8 +8,6 @@ namespace Zenvi.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser>(options)
 {
-    public DbSet<Media> Media { get; set; }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -40,15 +38,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<IdentityUserToken<string>>(entity =>
         {
             entity.ToTable("UserTokens");
-        });
-
-        builder.Entity<Media>(entity =>
-        {
-            entity.ToTable("Media");
-            entity.HasKey(m => m.MediaID);
-            entity.Property(m => m.MediaBlob).IsRequired();
-            entity.Property(m => m.Type).IsRequired();
-            entity.Property(m => m.CreatedAt).IsRequired();
         });
     }
 }

@@ -27,7 +27,7 @@ public class LogHandler<T>
     {
         var config = new LoggingConfiguration();
 
-        var logfile = new FileTarget("logfile") { FileName = "caresoft_core.log" };
+        var logfile = new FileTarget("logfile") { FileName = "Zenvi_Server.log" };
         var logconsole = new ConsoleTarget("logconsole");
 
         config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);

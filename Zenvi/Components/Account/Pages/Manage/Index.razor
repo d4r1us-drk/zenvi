@@ -1,15 +1,15 @@
 ﻿@page "/Account/Manage"
+@rendermode InteractiveServer
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using Zenvi.Data.Models
 @using Zenvi.Services
-
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
-@inject IMediaService MediaService
+@inject IMediaUploadService MediaUploadService
 
 <PageTitle>Profile</PageTitle>
 
@@ -20,7 +20,7 @@
 {
     <div class="row">
         <div class="col-md-6">
-            <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="EditProfile">
                 <DataAnnotationsValidator/>
                 <ValidationSummary class="text-danger" role="alert"/>
                 <div class="form-floating mb-3">
@@ -53,22 +53,22 @@
                     <ValidationMessage For="() => Input.PhoneNumber" class="text-danger"/>
                 </div>
 
-                <div class="form-floating mb-3">
+                <div class="form-group mb-3">
                     <label for="profile-picture" class="form-label">Profile picture</label>
-                    <InputFile OnChange="HandleProfilePictureUpload" class="form-control"/>
-                    @if (_user.ProfilePicture != null)
+                    <InputFile OnChange="@HandleProfilePictureUpload" class="form-control" accept="image/png,image/jpg,image/jpeg"/>
+                    @if (_profilePicturePreview != null)
                     {
-                        <img src="data:image/png;base64,@Convert.ToBase64String(_user.ProfilePicture.MediaBlob)" alt="Profile Picture" style="max-width: 100px; max-height: 100px;"/>
+                        <img src="@_profilePicturePreview" alt="Profile Picture" style="max-width: 100px; max-height: 100px;"/>
                         <button type="button" class="btn btn-danger" @onclick="RemoveProfilePicture">Delete</button>
                     }
                 </div>
 
-                <div class="form-floating mb-3">
+                <div class="form-group mb-3">
                     <label for="banner-picture" class="form-label">Banner picture</label>
-                    <InputFile OnChange="HandleBannerPictureUpload" class="form-control"/>
-                    @if (_user.BannerPicture != null)
+                    <InputFile OnChange="@HandleBannerPictureUpload" class="form-control" accept="image/png,image/jpg,image/jpeg"/>
+                    @if (_bannerPicturePreview != null)
                     {
-                        <img src="data:image/png;base64,@Convert.ToBase64String(_user.BannerPicture.MediaBlob)" alt="Banner Picture" style="max-width: 400px; max-height: 150px;"/>
+                        <img src="@_bannerPicturePreview" alt="Banner Picture" style="max-width: 400px; max-height: 150px;"/>
                         <button type="button" class="btn btn-danger" @onclick="RemoveBannerPicture">Delete</button>
                     }
                 </div>
@@ -86,93 +86,120 @@ else
 @code {
     private ApplicationUser _user = default!;
     private string? _username;
-    private string? _phoneNumber;
+    private string _profilePicturePreview;
+    private string _bannerPicturePreview;
+    private IBrowserFile? _profilePictureFile;
+    private IBrowserFile? _bannerPictureFile;
+    //private long _maxSize = 1024 * 1024 * 3; // 3MB
 
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
-
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         _user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         _username = await UserManager.GetUserNameAsync(_user);
-        _phoneNumber = await UserManager.GetPhoneNumberAsync(_user);
 
         Input.Name ??= _user.Name;
         Input.Surname ??= _user.Surname;
         Input.DateOfBirth ??= _user.DateOfBirth;
         Input.Bio ??= _user.Bio;
-        Input.PhoneNumber ??= _phoneNumber;
+        Input.PhoneNumber ??= await UserManager.GetPhoneNumberAsync(_user);
     }
 
     private async Task OnValidSubmitAsync()
     {
-        if (_user.Name != Input.Name)
-            _user.Name = Input.Name;
-
-        if (Input.Surname != _user.Surname)
-            _user.Surname = Input.Surname;
-
-        if (Input.DateOfBirth != _user.DateOfBirth)
-            _user.DateOfBirth = Input.DateOfBirth;
-
-        if (Input.Bio != _user.Bio)
-            _user.Bio = Input.Bio;
-
-        if (Input.PhoneNumber != _user.PhoneNumber)
-            _user.PhoneNumber = Input.PhoneNumber;
+        await UpdateUserProfile();
 
         var updateResult = await UserManager.UpdateAsync(_user);
         if (!updateResult.Succeeded)
-        {
             RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update profile.", HttpContext);
-            return;
+        else
+        {
+            await SignInManager.RefreshSignInAsync(_user);
+            RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+        }
+    }
+
+    private async Task UpdateUserProfile()
+    {
+        // Handling file upload to server using MediaUploadService
+        if (_profilePictureFile != null)
+        {
+            _user.ProfilePicture = await MediaUploadService.UploadFileAsync(_profilePictureFile);
         }
 
-        await SignInManager.RefreshSignInAsync(_user);
-        RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+        if (_bannerPictureFile != null)
+        {
+            _user.BannerPicture = await MediaUploadService.UploadFileAsync(_bannerPictureFile);
+        }
+        _user.Name = Input.Name;
+        _user.Surname = Input.Surname;
+        _user.DateOfBirth = Input.DateOfBirth;
+        _user.Bio = Input.Bio;
+        _user.PhoneNumber = Input.PhoneNumber;
     }
 
     private async Task HandleProfilePictureUpload(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        var media = await MediaService.SaveMediaAsync(file.OpenReadStream(), MediaType.Png); // Assuming PNG, change if needed
-        _user.ProfilePicture = media;
+        var imageFile = e.File;
+        var buffer = new byte[imageFile.Size];
+        await imageFile.OpenReadStream(1024 * 1024 * 10).ReadAsync(buffer);
+        var mimeType = imageFile.ContentType;
+        _profilePicturePreview = $"data:{mimeType};base64,{Convert.ToBase64String(buffer)}";
+        _profilePictureFile = imageFile; // Save file for later processing on submit
     }
 
     private async Task HandleBannerPictureUpload(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        var media = await MediaService.SaveMediaAsync(file.OpenReadStream(), MediaType.Png); // Assuming PNG, change if needed
-        _user.BannerPicture = media;
+        var imageFile = e.File;
+        var buffer = new byte[imageFile.Size];
+        await imageFile.OpenReadStream(1024 * 1024 * 10).ReadAsync(buffer);
+        var mimeType = imageFile.ContentType;
+        _bannerPicturePreview = $"data:{mimeType};base64,{Convert.ToBase64String(buffer)}";
+        _bannerPictureFile = imageFile; // Save file for later processing on submit
     }
 
     private void RemoveProfilePicture()
     {
         _user.ProfilePicture = null;
+        _profilePicturePreview = null;
+        _profilePictureFile = null;
     }
 
     private void RemoveBannerPicture()
     {
         _user.BannerPicture = null;
+        _bannerPicturePreview = null;
+        _bannerPictureFile = null;
     }
 
     private sealed class InputModel
     {
-        [Required] [Display(Name = "Name")] public string? Name { get; set; }
+        [Required]
+        [StringLength(255, ErrorMessage = "Why is your name so loooooooong?")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Name")]
+        public string? Name { get; set; }
 
-        [Required] [Display(Name = "Surname")] public string? Surname { get; set; }
+        [Required]
+        [StringLength(255, ErrorMessage = "Why is your surname so loooooooong?")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Surname")]
+        public string? Surname { get; set; }
 
         [Required]
         [Display(Name = "Date of Birth")]
         [DataType(DataType.Date)]
         public DateOnly? DateOfBirth { get; set; }
 
-        [Display(Name = "Bio")] public string? Bio { get; set; }
+        [StringLength(5000, ErrorMessage = "Character limit for the bio is 5000")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Bio")]
+        public string? Bio { get; set; }
 
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
     }
-
 }
