@@ -1,27 +1,26 @@
-﻿version: '3.8'
-
-services:
-  zenvi.core:
+﻿services:
+  zenvi:
     image: zenvi
     build:
       context: .
-      dockerfile: Zenvi.Webapp/Dockerfile
+      dockerfile: Zenvi/Dockerfile
     environment:
-      - DBCONSTRING=${CONNECTION_STRING}
-    depends_on:
-      - db
+      DATABASE_HOST: {DB_HOST}
+      DATABASE_PORT: {DB_PORT}
+      DATABASE_NAME: {DB_NAME}
+      DATABASE_USER: {DB_USER}
+      DATABASE_PSWD: {DB_PSWD}
 
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+  zenvi-postgres:
+    image: postgres:latest
     ports:
-      - "3306:3306"
+      {DB_PORT}:5432
+    environment:
+      POSTGRES_USER: {DB_USER}
+      POSTGRES_PASSWORD: {DB_PSWD}
+      POSTGRES_DB: {DB_NAME}
     volumes:
-      - zenvidb_data:/var/lib/mysql
+      - zenvi-postgres-data:
 
 volumes:
-  zenvidb_data:
+  zenvi-postgres-data:
