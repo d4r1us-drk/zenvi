@@ -12,7 +12,7 @@ using Zenvi.Core.Data.Context;
 namespace Zenvi.Core.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240708115206_Initial")]
+    [Migration("20240708220251_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -157,6 +157,41 @@ namespace Zenvi.Core.Data.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Conversation", b =>
+                {
+                    b.Property<int>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConversationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("User1Id")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("User2Id")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ConversationId");
+
+                    b.HasIndex("User1Id");
+
+                    b.HasIndex("User2Id");
+
+                    b.ToTable("Conversations", (string)null);
+                });
+
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Follow", b =>
                 {
                     b.Property<string>("SourceId")
@@ -173,6 +208,36 @@ namespace Zenvi.Core.Data.Migrations
                     b.HasIndex("TargetId");
 
                     b.ToTable("Follows");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Like", b =>
+                {
+                    b.Property<int>("LikeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LikeId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LikeId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PostId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Media", b =>
@@ -218,27 +283,28 @@ namespace Zenvi.Core.Data.Migrations
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)");
 
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int?>("RepliedToId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("SentAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("MessageId");
 
-                    b.HasIndex("ReceiverId");
+                    b.HasIndex("ConversationId");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("RepliedToId");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -423,6 +489,25 @@ namespace Zenvi.Core.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Conversation", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "User1")
+                        .WithMany()
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Follow", b =>
                 {
                     b.HasOne("Zenvi.Core.Data.Entities.User", "Source")
@@ -440,6 +525,25 @@ namespace Zenvi.Core.Data.Migrations
                     b.Navigation("Source");
 
                     b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Like", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Media", b =>
@@ -461,21 +565,20 @@ namespace Zenvi.Core.Data.Migrations
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Message", b =>
                 {
-                    b.HasOne("Zenvi.Core.Data.Entities.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("Zenvi.Core.Data.Entities.Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Zenvi.Core.Data.Entities.User", "Sender")
+                    b.HasOne("Zenvi.Core.Data.Entities.Message", "RepliedTo")
                         .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("RepliedToId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Receiver");
+                    b.Navigation("Conversation");
 
-                    b.Navigation("Sender");
+                    b.Navigation("RepliedTo");
                 });
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Post", b =>
@@ -511,6 +614,11 @@ namespace Zenvi.Core.Data.Migrations
                     b.Navigation("ProfilePicture");
                 });
 
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Conversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Message", b =>
                 {
                     b.Navigation("MediaContent");
@@ -518,6 +626,8 @@ namespace Zenvi.Core.Data.Migrations
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Post", b =>
                 {
+                    b.Navigation("Likes");
+
                     b.Navigation("MediaContent");
                 });
 #pragma warning restore 612, 618

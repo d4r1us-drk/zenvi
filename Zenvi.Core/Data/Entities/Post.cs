@@ -29,4 +29,6 @@ public class Post
 
     [DataType(DataType.DateTime)]
     public DateTime? UpdatedAt { get; set; }
+
+    public ICollection<Like> Likes { get; set; } = new List<Like>();
 }
