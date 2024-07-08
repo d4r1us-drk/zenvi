@@ -11,13 +11,13 @@ namespace Zenvi.Core.Utils;
 /// in a file and/or display them on the console.
 /// </summary>
 /// <typeparam name="T">The type associated with the event logging.</typeparam>
-public class LogHandler<T>
+public class LogHandler
 {
     // NLog configuration used by the LogHandler class.
     private static readonly LoggingConfiguration _config = CreateConfiguration();
 
     // Logger instance used to log events, configured for the type T.
-    private readonly Logger _log = LogManager.GetLogger(typeof(T).FullName);
+    private readonly Logger _log;
 
     /// <summary>
     /// Creates and configures the LoggingConfiguration instance for NLog.
@@ -39,9 +39,10 @@ public class LogHandler<T>
     /// <summary>
     /// Constructor of the LogHandler class. Assigns the static configuration to LogManager.
     /// </summary>
-    public LogHandler()
+    public LogHandler(Type type)
     {
         LogManager.Configuration = _config;
+        _log = LogManager.GetLogger(type.FullName);
     }
 
     /// <summary>

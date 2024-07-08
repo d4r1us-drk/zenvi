@@ -13,20 +13,6 @@ namespace Zenvi.Core.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Media",
-                columns: table => new
-                {
-                    MediaId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MediaUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    MediaType = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Media", x => x.MediaId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
@@ -38,46 +24,6 @@ namespace Zenvi.Core.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Role", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
-                    Banned = table.Column<bool>(type: "boolean", nullable: false),
-                    ProfilePictureUrlMediaId = table.Column<int>(type: "integer", nullable: true),
-                    BannerPictureUrlMediaId = table.Column<int>(type: "integer", nullable: true),
-                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_User_Media_BannerPictureUrlMediaId",
-                        column: x => x.BannerPictureUrlMediaId,
-                        principalTable: "Media",
-                        principalColumn: "MediaId");
-                    table.ForeignKey(
-                        name: "FK_User_Media_ProfilePictureUrlMediaId",
-                        column: x => x.ProfilePictureUrlMediaId,
-                        principalTable: "Media",
-                        principalColumn: "MediaId");
                 });
 
             migrationBuilder.CreateTable(
@@ -99,6 +45,133 @@ namespace Zenvi.Core.Data.Migrations
                         principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Follows",
+                columns: table => new
+                {
+                    SourceId = table.Column<string>(type: "text", nullable: false),
+                    TargetId = table.Column<string>(type: "text", nullable: false),
+                    FollowedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Follows", x => new { x.SourceId, x.TargetId });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Media",
+                columns: table => new
+                {
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    PostId = table.Column<int>(type: "integer", nullable: true),
+                    MessageId = table.Column<int>(type: "integer", nullable: true),
+                    UploadedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Media", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
+                    Banned = table.Column<bool>(type: "boolean", nullable: false),
+                    ProfilePictureName = table.Column<string>(type: "character varying(50)", nullable: true),
+                    BannerPictureName = table.Column<string>(type: "character varying(50)", nullable: true),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_User_Media_BannerPictureName",
+                        column: x => x.BannerPictureName,
+                        principalTable: "Media",
+                        principalColumn: "Name");
+                    table.ForeignKey(
+                        name: "FK_User_Media_ProfilePictureName",
+                        column: x => x.ProfilePictureName,
+                        principalTable: "Media",
+                        principalColumn: "Name");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    MessageId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SenderId = table.Column<string>(type: "text", nullable: false),
+                    ReceiverId = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    ReadAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.MessageId);
+                    table.ForeignKey(
+                        name: "FK_Messages_User_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_User_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PostOpId = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
+                    LikeCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    RepliedToId = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Posts_Posts_RepliedToId",
+                        column: x => x.RepliedToId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Posts_User_PostOpId",
+                        column: x => x.PostOpId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -187,6 +260,41 @@ namespace Zenvi.Core.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Follows_TargetId",
+                table: "Follows",
+                column: "TargetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Media_MessageId",
+                table: "Media",
+                column: "MessageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Media_PostId",
+                table: "Media",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ReceiverId",
+                table: "Messages",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SenderId",
+                table: "Messages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Posts_PostOpId",
+                table: "Posts",
+                column: "PostOpId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Posts_RepliedToId",
+                table: "Posts",
+                column: "RepliedToId");
+
+            migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 table: "Role",
                 column: "NormalizedName",
@@ -203,14 +311,14 @@ namespace Zenvi.Core.Data.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_BannerPictureUrlMediaId",
+                name: "IX_User_BannerPictureName",
                 table: "User",
-                column: "BannerPictureUrlMediaId");
+                column: "BannerPictureName");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ProfilePictureUrlMediaId",
+                name: "IX_User_ProfilePictureName",
                 table: "User",
-                column: "ProfilePictureUrlMediaId");
+                column: "ProfilePictureName");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -232,11 +340,58 @@ namespace Zenvi.Core.Data.Migrations
                 name: "IX_UserRoles_RoleId",
                 table: "UserRoles",
                 column: "RoleId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Follows_User_SourceId",
+                table: "Follows",
+                column: "SourceId",
+                principalTable: "User",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Follows_User_TargetId",
+                table: "Follows",
+                column: "TargetId",
+                principalTable: "User",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Media_Messages_MessageId",
+                table: "Media",
+                column: "MessageId",
+                principalTable: "Messages",
+                principalColumn: "MessageId",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Media_Posts_PostId",
+                table: "Media",
+                column: "PostId",
+                principalTable: "Posts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Messages_User_ReceiverId",
+                table: "Messages");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Messages_User_SenderId",
+                table: "Messages");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Posts_User_PostOpId",
+                table: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "Follows");
+
             migrationBuilder.DropTable(
                 name: "RoleClaims");
 
@@ -260,6 +415,12 @@ namespace Zenvi.Core.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Media");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
+                name: "Posts");
         }
     }
 }

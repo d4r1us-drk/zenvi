@@ -22,9 +22,9 @@ public class User : IdentityUser
 
     public bool Banned { get; set; }
 
-    public Media? ProfilePictureUrl { get; set; }
+    public Media? ProfilePicture { get; set; }
 
-    public Media? BannerPictureUrl { get; set; }
+    public Media? BannerPicture { get; set; }
 
     [NotMapped]
     public new string? PhoneNumber { get; set; }

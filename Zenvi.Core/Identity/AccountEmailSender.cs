@@ -2,9 +2,9 @@ using FluentEmail.Core;
 using Microsoft.AspNetCore.Identity;
 using Zenvi.Core.Data.Entities;
 
-namespace Zenvi.Core.Services;
+namespace Zenvi.Core.Identity;
 
-public class IdentityEmailSender(IFluentEmail fluentEmail) : IEmailSender<User>
+public class AccountEmailSender(IFluentEmail fluentEmail) : IEmailSender<User>
 {
     private Task SendEmailAsync(string email, string subject, string htmlMessage)
     {

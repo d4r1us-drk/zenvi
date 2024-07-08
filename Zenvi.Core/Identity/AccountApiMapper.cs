@@ -11,19 +11,31 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Zenvi.Core.Data.Context;
 using Zenvi.Core.Data.Entities;
-using Zenvi.Core.Identity.Models;
-using Zenvi.Core.Models;
-using Zenvi.Core.Services;
+using Zenvi.Core.Utils;
+using Zenvi.Shared;
 
 namespace Zenvi.Core.Identity;
 
-public static class ZenviIdentityApiMapper
+// This is a custom implementation of the default IdentityApiEndpointRouteBuilderExtensions available at:
+// https://github.com/dotnet/aspnetcore/blob/main/src/Identity/Core/src/IdentityApiEndpointRouteBuilderExtensions.cs
+// This was needed for my custom user class with extra data, at this point there's no support for a custom IdentityUser
+// class, so I needed to grab the original source code and modify it. Specifically the register and info endpoints.
+public static class AccountApiMapper
 {
-    // Validate the email address using DataAnnotations like the UserValidator does when RequireUniqueEmail = true.
+    private static readonly LogHandler LogHandler = new(typeof(AccountApiMapper));
+
     private static readonly EmailAddressAttribute EmailAddressAttribute = new();
 
-    public static IEndpointConventionBuilder MapZenviIdentityApi(this IEndpointRouteBuilder endpoints)
+    private static readonly HashSet<string> AcceptablePictureMediaTypes =
+    [
+        "image/jpeg",
+        "image/png",
+        "image/gif"
+    ];
+
+    public static IEndpointConventionBuilder MapAccountApi(this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 
@@ -32,21 +44,21 @@ public static class ZenviIdentityApiMapper
         var emailSender = endpoints.ServiceProvider.GetRequiredService<IEmailSender<User>>();
         var linkGenerator = endpoints.ServiceProvider.GetRequiredService<LinkGenerator>();
 
-        // We'll figure out a unique endpoint name based on the final route pattern during endpoint generation.
         string? confirmEmailEndpointName = null;
 
         var routeGroup = endpoints.MapGroup("/identity");
 
-        // NOTE: We cannot inject UserManager<TUser> directly because the TUser generic parameter is currently unsupported by RDG.
-        // https://github.com/dotnet/aspnetcore/issues/47338
         routeGroup.MapPost("/register", async Task<Results<Ok, ValidationProblem>>
-            ([FromBody] RegisterModel registration, HttpContext context, [FromServices] IServiceProvider sp) =>
+            ([FromBody] RegisterUserDto registration, HttpContext context, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Registering a new user.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
 
             if (!userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException($"{nameof(MapZenviIdentityApi)} requires a user store with email support.");
+                LogHandler.LogError("Email support is required.", new NotSupportedException());
+                throw new NotSupportedException($"{nameof(MapAccountApi)} requires a user store with email support.");
             }
 
             var userStore = sp.GetRequiredService<IUserStore<User>>();
@@ -55,6 +67,7 @@ public static class ZenviIdentityApiMapper
 
             if (string.IsNullOrEmpty(email) || !EmailAddressAttribute.IsValid(email))
             {
+                LogHandler.LogError("Invalid email.", new ArgumentException());
                 return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(email)));
             }
 
@@ -63,7 +76,7 @@ public static class ZenviIdentityApiMapper
                 Email = registration.Email,
                 Name = registration.Name,
                 Surname = registration.Surname,
-                UserName = registration.Email,
+                UserName = registration.Email
             };
 
             await userStore.SetUserNameAsync(user, email, CancellationToken.None);
@@ -72,16 +85,21 @@ public static class ZenviIdentityApiMapper
 
             if (!result.Succeeded)
             {
+                LogHandler.LogError("User registration failed.", new InvalidOperationException());
                 return CreateValidationProblem(result);
             }
 
             await SendConfirmationEmailAsync(user, userManager, context, email);
+            LogHandler.LogInfo("User registered successfully.");
+
             return TypedResults.Ok();
         });
 
         routeGroup.MapPost("/login", async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>>
-            ([FromBody] LoginRequest login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies, [FromServices] IServiceProvider sp) =>
+            ([FromBody] LoginUserDto login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("User login attempt.");
+
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
 
             var useCookieScheme = (useCookies == true) || (useSessionCookies == true);
@@ -104,40 +122,46 @@ public static class ZenviIdentityApiMapper
 
             if (!result.Succeeded)
             {
+                LogHandler.LogError("User login failed.", new UnauthorizedAccessException());
                 return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            // The signInManager already produced the needed response in the form of a cookie or bearer token.
+            LogHandler.LogInfo("User logged in successfully.");
             return TypedResults.Empty;
         });
 
         routeGroup.MapPost("/refresh", async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>
-            ([FromBody] RefreshRequest refreshRequest, [FromServices] IServiceProvider sp) =>
+            ([FromBody] RefreshUserDto refreshRequest, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Refreshing user token.");
+
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
             var refreshTokenProtector = bearerTokenOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
             var refreshTicket = refreshTokenProtector.Unprotect(refreshRequest.RefreshToken);
 
-            // Reject the /refresh attempt with a 401 if the token expired or the security stamp validation fails
             if (refreshTicket?.Properties.ExpiresUtc is not { } expiresUtc ||
                 timeProvider.GetUtcNow() >= expiresUtc ||
                 await signInManager.ValidateSecurityStampAsync(refreshTicket.Principal) is not { } user)
-
             {
+                LogHandler.LogError("Token refresh failed.", new UnauthorizedAccessException());
                 return TypedResults.Challenge();
             }
 
             var newPrincipal = await signInManager.CreateUserPrincipalAsync(user);
+            LogHandler.LogInfo("Token refreshed successfully.");
+
             return TypedResults.SignIn(newPrincipal, authenticationScheme: IdentityConstants.BearerScheme);
         });
 
         routeGroup.MapGet("/confirmEmail", async Task<Results<ContentHttpResult, UnauthorizedHttpResult>>
             ([FromQuery] string userId, [FromQuery] string code, [FromQuery] string? changedEmail, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Email confirmation attempt.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
             if (await userManager.FindByIdAsync(userId) is not { } user)
             {
-                // We could respond with a 404 instead of a 401 like Identity UI, but that feels like unnecessary information.
+                LogHandler.LogError("User not found for email confirmation.", new KeyNotFoundException());
                 return TypedResults.Unauthorized();
             }
 
@@ -147,6 +171,7 @@ public static class ZenviIdentityApiMapper
             }
             catch (FormatException)
             {
+                LogHandler.LogError("Invalid email confirmation code format.", new FormatException());
                 return TypedResults.Unauthorized();
             }
 
@@ -158,8 +183,6 @@ public static class ZenviIdentityApiMapper
             }
             else
             {
-                // As with Identity UI, email and user name are one and the same. So when we update the email,
-                // we need to update the user name.
                 result = await userManager.ChangeEmailAsync(user, changedEmail, code);
 
                 if (result.Succeeded)
@@ -170,21 +193,25 @@ public static class ZenviIdentityApiMapper
 
             if (!result.Succeeded)
             {
+                LogHandler.LogError("Email confirmation failed.", new InvalidOperationException());
                 return TypedResults.Unauthorized();
             }
 
+            LogHandler.LogInfo("Email confirmed successfully.");
             return TypedResults.Text("Thank you for confirming your email.");
         })
         .Add(endpointBuilder =>
         {
             var finalPattern = ((RouteEndpointBuilder)endpointBuilder).RoutePattern.RawText;
-            confirmEmailEndpointName = $"{nameof(MapZenviIdentityApi)}-{finalPattern}";
+            confirmEmailEndpointName = $"{nameof(MapAccountApi)}-{finalPattern}";
             endpointBuilder.Metadata.Add(new EndpointNameMetadata(confirmEmailEndpointName));
         });
 
         routeGroup.MapPost("/resendConfirmationEmail", async Task<Ok>
-            ([FromBody] ResendConfirmationEmailRequest resendRequest, HttpContext context, [FromServices] IServiceProvider sp) =>
+            ([FromBody] ResendConfirmationEmailUserDto resendRequest, HttpContext context, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Resending confirmation email.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
             if (await userManager.FindByEmailAsync(resendRequest.Email) is not { } user)
             {
@@ -192,12 +219,16 @@ public static class ZenviIdentityApiMapper
             }
 
             await SendConfirmationEmailAsync(user, userManager, context, resendRequest.Email);
+            LogHandler.LogInfo("Confirmation email resent successfully.");
+
             return TypedResults.Ok();
         });
 
         routeGroup.MapPost("/forgotPassword", async Task<Results<Ok, ValidationProblem>>
-            ([FromBody] ForgotPasswordRequest resetRequest, [FromServices] IServiceProvider sp) =>
+            ([FromBody] ForgotPasswordUserDto resetRequest, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Password reset request received.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
             var user = await userManager.FindByEmailAsync(resetRequest.Email);
 
@@ -209,22 +240,21 @@ public static class ZenviIdentityApiMapper
                 await emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
             }
 
-            // Don't reveal that the user does not exist or is not confirmed, so don't return a 200 if we would have
-            // returned a 400 for an invalid code given a valid user email.
+            LogHandler.LogInfo("Password reset process initiated.");
             return TypedResults.Ok();
         });
 
         routeGroup.MapPost("/resetPassword", async Task<Results<Ok, ValidationProblem>>
-            ([FromBody] ResetPasswordRequest resetRequest, [FromServices] IServiceProvider sp) =>
+            ([FromBody] ResetPasswordUserDto resetRequest, [FromServices] IServiceProvider sp) =>
         {
-            var userManager = sp.GetRequiredService<UserManager<User>>();
+            LogHandler.LogInfo("Resetting password.");
 
+            var userManager = sp.GetRequiredService<UserManager<User>>();
             var user = await userManager.FindByEmailAsync(resetRequest.Email);
 
             if (user is null || !(await userManager.IsEmailConfirmedAsync(user)))
             {
-                // Don't reveal that the user does not exist or is not confirmed, so don't return a 200 if we would have
-                // returned a 400 for an invalid code given a valid user email.
+                LogHandler.LogError("Invalid password reset token.", new InvalidOperationException());
                 return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidToken()));
             }
 
@@ -236,26 +266,32 @@ public static class ZenviIdentityApiMapper
             }
             catch (FormatException)
             {
+                LogHandler.LogError("Invalid password reset code format.", new FormatException());
                 result = IdentityResult.Failed(userManager.ErrorDescriber.InvalidToken());
             }
 
             if (!result.Succeeded)
             {
+                LogHandler.LogError("Password reset failed.", new InvalidOperationException());
                 return CreateValidationProblem(result);
             }
 
+            LogHandler.LogInfo("Password reset successfully.");
             return TypedResults.Ok();
         });
 
         var accountGroup = routeGroup.MapGroup("/manage").RequireAuthorization();
 
         accountGroup.MapPost("/2fa", async Task<Results<Ok<TwoFactorResponse>, ValidationProblem, NotFound>>
-            (ClaimsPrincipal claimsPrincipal, [FromBody] TwoFactorRequest tfaRequest, [FromServices] IServiceProvider sp) =>
+            (ClaimsPrincipal claimsPrincipal, [FromBody] TwoFactorUserDto tfaRequest, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Two-factor authentication setup attempt.");
+
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
             var userManager = signInManager.UserManager;
             if (await userManager.GetUserAsync(claimsPrincipal) is not { } user)
             {
+                LogHandler.LogError("User not found for 2FA setup.", new KeyNotFoundException());
                 return TypedResults.NotFound();
             }
 
@@ -263,16 +299,19 @@ public static class ZenviIdentityApiMapper
             {
                 if (tfaRequest.ResetSharedKey)
                 {
+                    LogHandler.LogError("Resetting shared key and enabling 2FA is not allowed.", new InvalidOperationException());
                     return CreateValidationProblem("CannotResetSharedKeyAndEnable",
                         "Resetting the 2fa shared key must disable 2fa until a 2fa token based on the new shared key is validated.");
                 }
                 else if (string.IsNullOrEmpty(tfaRequest.TwoFactorCode))
                 {
+                    LogHandler.LogError("2FA token not provided.", new ArgumentException());
                     return CreateValidationProblem("RequiresTwoFactor",
                         "No 2fa token was provided by the request. A valid 2fa token is required to enable 2fa.");
                 }
                 else if (!await userManager.VerifyTwoFactorTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, tfaRequest.TwoFactorCode))
                 {
+                    LogHandler.LogError("Invalid 2FA token.", new InvalidOperationException());
                     return CreateValidationProblem("InvalidTwoFactorCode",
                         "The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.");
                 }
@@ -309,10 +348,12 @@ public static class ZenviIdentityApiMapper
 
                 if (string.IsNullOrEmpty(key))
                 {
+                    LogHandler.LogError("Failed to generate authenticator key.", new NotSupportedException());
                     throw new NotSupportedException("The user manager must produce an authenticator key after reset.");
                 }
             }
 
+            LogHandler.LogInfo("2FA setup completed successfully.");
             return TypedResults.Ok(new TwoFactorResponse
             {
                 SharedKey = key,
@@ -323,120 +364,153 @@ public static class ZenviIdentityApiMapper
             });
         });
 
-        accountGroup.MapGet("/info", async Task<Results<Ok<InfoModel>, ValidationProblem, NotFound>>
+        accountGroup.MapGet("/info", async Task<Results<Ok<AboutUserDto>, ValidationProblem, NotFound>>
             (ClaimsPrincipal claimsPrincipal, [FromServices] IServiceProvider sp) =>
         {
+            LogHandler.LogInfo("Fetching user info.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
             if (await userManager.GetUserAsync(claimsPrincipal) is not { } user)
             {
+                LogHandler.LogError("User not found.", new KeyNotFoundException());
                 return TypedResults.NotFound();
             }
 
+            LogHandler.LogInfo("User info retrieved successfully.");
             return TypedResults.Ok(await CreateInfoResponseAsync(user, userManager));
         });
 
-        accountGroup.MapPost("/info", async Task<Results<Ok<InfoModel>, ValidationProblem, NotFound>>
-            (ClaimsPrincipal claimsPrincipal, [FromForm] UpdateModel updateModel, HttpContext context, [FromServices] IServiceProvider sp) =>
+        accountGroup.MapPost("/update", async Task<Results<Ok<AboutUserDto>, ValidationProblem, NotFound>>
+            (ClaimsPrincipal claimsPrincipal, [FromForm] UpdateUserDto updateRequest, HttpContext context, [FromServices] IServiceProvider sp, [FromServices] ApplicationDbContext dbContext) =>
         {
+            LogHandler.LogInfo("Updating user info.");
+
             var userManager = sp.GetRequiredService<UserManager<User>>();
-            var mediaUploadService = sp.GetRequiredService<IMediaUploadService>();
+
             if (await userManager.GetUserAsync(claimsPrincipal) is not { } user)
             {
+                LogHandler.LogError("User not found.", new KeyNotFoundException());
                 return TypedResults.NotFound();
             }
 
-            if (!string.IsNullOrEmpty(updateModel.NewEmail) && !EmailAddressAttribute.IsValid(updateModel.NewEmail))
+            if (!string.IsNullOrEmpty(updateRequest.NewEmail) && !EmailAddressAttribute.IsValid(updateRequest.NewEmail))
             {
-                return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(updateModel.NewEmail)));
+                LogHandler.LogError("Invalid email address.", new ArgumentException());
+                return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(updateRequest.NewEmail)));
             }
 
-            if (!string.IsNullOrEmpty(updateModel.NewPassword))
+            if (!string.IsNullOrEmpty(updateRequest.NewPassword))
             {
-                if (string.IsNullOrEmpty(updateModel.OldPassword))
+                if (string.IsNullOrEmpty(updateRequest.OldPassword))
                 {
+                    LogHandler.LogError("Old password required to set a new password.", new ArgumentException());
                     return CreateValidationProblem("OldPasswordRequired",
                         "The old password is required to set a new password. If the old password is forgotten, use /resetPassword.");
                 }
 
-                var changePasswordResult = await userManager.ChangePasswordAsync(user, updateModel.OldPassword, updateModel.NewPassword);
+                var changePasswordResult = await userManager.ChangePasswordAsync(user, updateRequest.OldPassword, updateRequest.NewPassword);
                 if (!changePasswordResult.Succeeded)
                 {
+                    LogHandler.LogError("Password change failed.", new InvalidOperationException());
                     return CreateValidationProblem(changePasswordResult);
                 }
             }
 
-            if (!string.IsNullOrEmpty(updateModel.NewEmail))
+            if (!string.IsNullOrEmpty(updateRequest.NewEmail))
             {
                 var email = await userManager.GetEmailAsync(user);
 
-                if (email != updateModel.NewEmail)
+                if (email != updateRequest.NewEmail)
                 {
-                    await SendConfirmationEmailAsync(user, userManager, context, updateModel.NewEmail, isChange: true);
+                    await SendConfirmationEmailAsync(user, userManager, context, updateRequest.NewEmail, isChange: true);
                 }
             }
 
-            if (!string.IsNullOrEmpty(updateModel.Name))
+            if (!string.IsNullOrEmpty(updateRequest.Name))
             {
-                user.Name = updateModel.Name;
+                user.Name = updateRequest.Name;
             }
 
-            if (!string.IsNullOrEmpty(updateModel.Surname))
+            if (!string.IsNullOrEmpty(updateRequest.Surname))
             {
-                user.Surname = updateModel.Surname;
+                user.Surname = updateRequest.Surname;
             }
 
-            if (!string.IsNullOrEmpty(updateModel.Bio))
+            if (!string.IsNullOrEmpty(updateRequest.Bio))
             {
-                user.Bio = updateModel.Bio;
+                user.Bio = updateRequest.Bio;
             }
 
-            if (!string.IsNullOrEmpty(updateModel.DateOfBirth))
+            if (!string.IsNullOrEmpty(updateRequest.ProfilePictureName))
             {
-                if (DateOnly.TryParse(updateModel.DateOfBirth, out var dateOfBirth))
+                var profilePicture = await dbContext.Media.FindAsync(updateRequest.ProfilePictureName);
+
+                if (profilePicture != null)
+                {
+                    if (AcceptablePictureMediaTypes.Contains(profilePicture.Type))
+                    {
+                        user.ProfilePicture = profilePicture;
+                    }
+                    else
+                    {
+                        LogHandler.LogError("Invalid media format for profile picture.", new InvalidOperationException());
+                        return CreateValidationProblem("InvalidMediaType", "The provided media format isn't a picture");
+                    }
+                }
+                else
+                {
+                    LogHandler.LogError("Profile picture not found.", new KeyNotFoundException());
+                    return CreateValidationProblem("ProfilePictureNotFound",
+                        "The provided profile picture file name was not found");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(updateRequest.BannerPictureName))
+            {
+                var bannerPicture = await dbContext.Media.FindAsync(updateRequest.BannerPictureName);
+
+                if (bannerPicture != null)
+                {
+                    if (AcceptablePictureMediaTypes.Contains(bannerPicture.Type))
+                    {
+                        user.BannerPicture = bannerPicture;
+                    }
+                    else
+                    {
+                        LogHandler.LogError("Invalid media format for banner picture.", new InvalidOperationException());
+                        return CreateValidationProblem("InvalidMediaType", "The provided media format isn't a banner picture");
+                    }
+                }
+                else
+                {
+                    LogHandler.LogError("Banner picture not found.", new KeyNotFoundException());
+                    return CreateValidationProblem("BannerPictureNotFound",
+                        "The provided banner picture file name was not found");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(updateRequest.DateOfBirth))
+            {
+                if (DateOnly.TryParse(updateRequest.DateOfBirth, out var dateOfBirth))
                 {
                     user.DateOfBirth = dateOfBirth;
                 }
                 else
                 {
+                    LogHandler.LogError("Invalid date of birth format.", new FormatException());
                     return CreateValidationProblem("InvalidDateOfBirth", "The DateOfBirth is not valid.");
                 }
-            }
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-
-            if (updateModel.ProfilePicture != null)
-            {
-                var profilePictureExtension = Path.GetExtension(updateModel.ProfilePicture.Name).ToLowerInvariant();
-                if (!allowedExtensions.Contains(profilePictureExtension))
-                {
-                    return CreateValidationProblem("InvalidFileType",
-                        "Invalid file type for profile picture. Only jpg, jpeg, and png are allowed.");
-                }
-
-                var profilePicturePath = await mediaUploadService.UploadFileAsync(updateModel.ProfilePicture);
-                user.ProfilePictureUrl = new Media { MediaUrl = profilePicturePath, MediaType = MediaType.Photo };
-            }
-
-            if (updateModel.BannerPicture != null)
-            {
-                var bannerPictureExtension = Path.GetExtension(updateModel.BannerPicture.Name).ToLowerInvariant();
-                if (!allowedExtensions.Contains(bannerPictureExtension))
-                {
-                    return CreateValidationProblem("InvalidFileType",
-                        "Invalid file type for banner picture. Only jpg, jpeg, and png are allowed.");
-                }
-
-                var bannerPicturePath = await mediaUploadService.UploadFileAsync(updateModel.BannerPicture);
-                user.BannerPictureUrl = new Media { MediaUrl = bannerPicturePath, MediaType = MediaType.Photo };
             }
 
             var result = await userManager.UpdateAsync(user);
 
             if (result.Succeeded)
             {
+                LogHandler.LogInfo("User info updated successfully.");
                 return TypedResults.Ok(await CreateInfoResponseAsync(user, userManager));
             }
 
+            LogHandler.LogError("User info update failed.", new InvalidOperationException());
             return CreateValidationProblem(result);
         });
 
@@ -444,6 +518,7 @@ public static class ZenviIdentityApiMapper
         {
             if (confirmEmailEndpointName is null)
             {
+                LogHandler.LogError("Email confirmation endpoint not registered.", new NotSupportedException());
                 throw new NotSupportedException("No email confirmation endpoint was registered!");
             }
 
@@ -453,15 +528,14 @@ public static class ZenviIdentityApiMapper
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
             var userId = await userManager.GetUserIdAsync(user);
-            var routeValues = new RouteValueDictionary()
+            var routeValues = new RouteValueDictionary
             {
                 ["userId"] = userId,
-                ["code"] = code,
+                ["code"] = code
             };
 
             if (isChange)
             {
-                // This is validated by the /confirmEmail endpoint on change.
                 routeValues.Add("changedEmail", email);
             }
 
@@ -469,6 +543,7 @@ public static class ZenviIdentityApiMapper
                 ?? throw new NotSupportedException($"Could not find endpoint named '{confirmEmailEndpointName}'.");
 
             await emailSender.SendConfirmationLinkAsync(user, email, HtmlEncoder.Default.Encode(confirmEmailUrl));
+            LogHandler.LogInfo("Confirmation email sent successfully.");
         }
 
         return new IdentityEndpointsConventionBuilder(routeGroup);
@@ -481,8 +556,6 @@ public static class ZenviIdentityApiMapper
 
     private static ValidationProblem CreateValidationProblem(IdentityResult result)
     {
-        // We expect a single error code and description in the normal case.
-        // This could be golfed with GroupBy and ToDictionary, but perf! :P
         Debug.Assert(!result.Succeeded);
         var errorDictionary = new Dictionary<string, string[]>(1);
 
@@ -507,9 +580,9 @@ public static class ZenviIdentityApiMapper
         return TypedResults.ValidationProblem(errorDictionary);
     }
 
-    private static async Task<InfoModel> CreateInfoResponseAsync(User user, UserManager<User> userManager)
+    private static async Task<AboutUserDto> CreateInfoResponseAsync(User user, UserManager<User> userManager)
     {
-        return new InfoModel
+        return new AboutUserDto
         {
             Email = await userManager.GetEmailAsync(user) ?? throw new NotSupportedException("Users must have an email."),
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
@@ -518,12 +591,11 @@ public static class ZenviIdentityApiMapper
             Bio = user.Bio,
             DateOfBirth = user.DateOfBirth,
             Banned = user.Banned,
-            ProfilePictureUrl = user.ProfilePictureUrl,
-            BannerPictureUrl = user.BannerPictureUrl
+            ProfilePictureName = user.ProfilePicture?.Name,
+            BannerPictureName = user.BannerPicture?.Name
         };
     }
 
-    // Wrap RouteGroupBuilder with a non-public type to avoid a potential future behavioral breaking change.
     private sealed class IdentityEndpointsConventionBuilder(RouteGroupBuilder inner) : IEndpointConventionBuilder
     {
         private IEndpointConventionBuilder InnerAsConventionBuilder => inner;
@@ -533,14 +605,10 @@ public static class ZenviIdentityApiMapper
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
-    private sealed class FromBodyAttribute : Attribute, IFromBodyMetadata
-    {
-    }
+    private sealed class FromBodyAttribute : Attribute, IFromBodyMetadata;
 
     [AttributeUsage(AttributeTargets.Parameter)]
-    private sealed class FromServicesAttribute : Attribute, IFromServiceMetadata
-    {
-    }
+    private sealed class FromServicesAttribute : Attribute, IFromServiceMetadata;
 
     [AttributeUsage(AttributeTargets.Parameter)]
     private sealed class FromQueryAttribute : Attribute, IFromQueryMetadata

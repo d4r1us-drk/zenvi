@@ -5,18 +5,17 @@ namespace Zenvi.Core.Data.Entities;
 public class Media
 {
     [Key]
-    public int MediaId { get; set; }
+    [StringLength(50)]
+    public required string Name { get; set; }
 
     [Required]
-    [StringLength(500)]
-    public string MediaUrl { get; set; }
+    public required string Type { get; set; }
 
-    [Required]
-    public MediaType MediaType { get; set; }
-}
+    public int? PostId { get; set; }
+    public Post Post { get; set; }
 
-public enum MediaType
-{
-    Photo,
-    Video
+    public int? MessageId { get; set; }
+    public Message Message { get; set; }
+
+    public DateTime UploadedAt { get; set; } = DateTime.Now;
 }

@@ -154,25 +154,131 @@ namespace Zenvi.Core.Data.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Follow", b =>
+                {
+                    b.Property<string>("SourceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("FollowedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("SourceId", "TargetId");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("Follows");
+                });
+
             modelBuilder.Entity("Zenvi.Core.Data.Entities.Media", b =>
                 {
-                    b.Property<int>("MediaId")
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("MessageId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Name");
+
+                    b.HasIndex("MessageId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Media", (string)null);
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Message", b =>
+                {
+                    b.Property<int>("MessageId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MediaId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageId"));
 
-                    b.Property<int>("MediaType")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SentAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages", (string)null);
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<string>("MediaUrl")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("LikeCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("PostOpId")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
-                    b.HasKey("MediaId");
+                    b.Property<int?>("RepliedToId")
+                        .HasColumnType("integer");
 
-                    b.ToTable("Media", (string)null);
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostOpId");
+
+                    b.HasIndex("RepliedToId");
+
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("Zenvi.Core.Data.Entities.User", b =>
@@ -186,8 +292,8 @@ namespace Zenvi.Core.Data.Migrations
                     b.Property<bool>("Banned")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("BannerPictureUrlMediaId")
-                        .HasColumnType("integer");
+                    b.Property<string>("BannerPictureName")
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(500)
@@ -229,8 +335,8 @@ namespace Zenvi.Core.Data.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProfilePictureUrlMediaId")
-                        .HasColumnType("integer");
+                    b.Property<string>("ProfilePictureName")
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -249,7 +355,7 @@ namespace Zenvi.Core.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BannerPictureUrlMediaId");
+                    b.HasIndex("BannerPictureName");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -258,7 +364,7 @@ namespace Zenvi.Core.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.HasIndex("ProfilePictureUrlMediaId");
+                    b.HasIndex("ProfilePictureName");
 
                     b.ToTable("User", (string)null);
                 });
@@ -314,19 +420,102 @@ namespace Zenvi.Core.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Follow", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+
+                    b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Media", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.Message", "Message")
+                        .WithMany("MediaContent")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Zenvi.Core.Data.Entities.Post", "Post")
+                        .WithMany("MediaContent")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Message");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Message", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Post", b =>
+                {
+                    b.HasOne("Zenvi.Core.Data.Entities.User", "PostOp")
+                        .WithMany()
+                        .HasForeignKey("PostOpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Zenvi.Core.Data.Entities.Post", "RepliedTo")
+                        .WithMany()
+                        .HasForeignKey("RepliedToId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("PostOp");
+
+                    b.Navigation("RepliedTo");
+                });
+
             modelBuilder.Entity("Zenvi.Core.Data.Entities.User", b =>
                 {
-                    b.HasOne("Zenvi.Core.Data.Entities.Media", "BannerPictureUrl")
+                    b.HasOne("Zenvi.Core.Data.Entities.Media", "BannerPicture")
                         .WithMany()
-                        .HasForeignKey("BannerPictureUrlMediaId");
+                        .HasForeignKey("BannerPictureName");
 
-                    b.HasOne("Zenvi.Core.Data.Entities.Media", "ProfilePictureUrl")
+                    b.HasOne("Zenvi.Core.Data.Entities.Media", "ProfilePicture")
                         .WithMany()
-                        .HasForeignKey("ProfilePictureUrlMediaId");
+                        .HasForeignKey("ProfilePictureName");
 
-                    b.Navigation("BannerPictureUrl");
+                    b.Navigation("BannerPicture");
 
-                    b.Navigation("ProfilePictureUrl");
+                    b.Navigation("ProfilePicture");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Message", b =>
+                {
+                    b.Navigation("MediaContent");
+                });
+
+            modelBuilder.Entity("Zenvi.Core.Data.Entities.Post", b =>
+                {
+                    b.Navigation("MediaContent");
                 });
 #pragma warning restore 612, 618
         }
