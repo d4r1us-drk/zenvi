@@ -16,7 +16,7 @@ public class FollowController(IFollowService followService) : ControllerBase
         try
         {
             await followService.FollowUserAsync(User, followDto.TargetUserId);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {
@@ -34,7 +34,7 @@ public class FollowController(IFollowService followService) : ControllerBase
         try
         {
             await followService.UnfollowUserAsync(User, unfollowDto.TargetUserId);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {

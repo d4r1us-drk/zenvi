@@ -102,8 +102,8 @@ public static class AccountApiMapper
 
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
 
-            var useCookieScheme = (useCookies == true) || (useSessionCookies == true);
-            var isPersistent = (useCookies == true) && (useSessionCookies != true);
+            var useCookieScheme = useCookies == true || useSessionCookies == true;
+            var isPersistent = useCookies == true && useSessionCookies != true;
             signInManager.AuthenticationScheme = useCookieScheme ? IdentityConstants.ApplicationScheme : IdentityConstants.BearerScheme;
 
             var result = await signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent, lockoutOnFailure: true);
@@ -129,6 +129,13 @@ public static class AccountApiMapper
             LogHandler.LogInfo("User logged in successfully.");
             return TypedResults.Empty;
         });
+
+        routeGroup.MapPost("/logout", async (SignInManager<User> signInManager, [FromBody] object empty) =>
+        {
+            await signInManager.SignOutAsync();
+            return Results.Ok();
+        })
+        .RequireAuthorization();
 
         routeGroup.MapPost("/refresh", async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>
             ([FromBody] RefreshUserDto refreshRequest, [FromServices] IServiceProvider sp) =>
@@ -252,7 +259,7 @@ public static class AccountApiMapper
             var userManager = sp.GetRequiredService<UserManager<User>>();
             var user = await userManager.FindByEmailAsync(resetRequest.Email);
 
-            if (user is null || !(await userManager.IsEmailConfirmedAsync(user)))
+            if (user is null || !await userManager.IsEmailConfirmedAsync(user))
             {
                 LogHandler.LogError("Invalid password reset token.", new InvalidOperationException());
                 return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidToken()));
@@ -329,7 +336,7 @@ public static class AccountApiMapper
             }
 
             string[]? recoveryCodes = null;
-            if (tfaRequest.ResetRecoveryCodes || (tfaRequest.Enable == true && await userManager.CountRecoveryCodesAsync(user) == 0))
+            if (tfaRequest.ResetRecoveryCodes || tfaRequest.Enable == true && await userManager.CountRecoveryCodesAsync(user) == 0)
             {
                 var recoveryCodesEnumerable = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
                 recoveryCodes = recoveryCodesEnumerable?.ToArray();

@@ -5,8 +5,9 @@ namespace Zenvi.Shared;
 public class CreateConversationDto
 {
     [Required]
-    public string User2Id { get; set; }
-    public string Description { get; set; }
+    public string User2UserName { get; set; }
+
+    public string? Description { get; set; }
 }
 
 public class UpdateConversationDto

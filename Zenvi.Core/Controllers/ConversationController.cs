@@ -16,13 +16,8 @@ public class ConversationsController(IConversationService conversationService) :
     {
         try
         {
-            var conversation = new Conversation
-            {
-                User2 = new User { Id = conversationDto.User2Id },
-                Description = conversationDto.Description
-            };
-            var createdConversation = await conversationService.CreateConversationAsync(User, conversation);
-            return CreatedAtAction(nameof(GetConversationById), new { id = createdConversation.ConversationId }, createdConversation);
+            var createdConversation = await conversationService.CreateConversationAsync(User, conversationDto.User2UserName, conversationDto.Description);
+            return Ok(CreatedAtAction(nameof(GetConversationById), new { id = createdConversation.ConversationId }, MapToDto(createdConversation)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -36,7 +31,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             await conversationService.DeleteConversationAsync(id, User);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {
@@ -54,27 +49,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             var conversation = await conversationService.GetConversationByIdAsync(id, User);
-            var conversationDto = new ConversationDto
-            {
-                ConversationId = conversation.ConversationId,
-                User1UserName = conversation.User1.UserName,
-                User2UserName = conversation.User2.UserName,
-                Description = conversation.Description,
-                CreatedAt = conversation.CreatedAt,
-                Messages = conversation.Messages.Select(m => new MessageDto
-                {
-                    MessageId = m.MessageId,
-                    ConversationId = m.ConversationId,
-                    Content = m.Content,
-                    MediaNames = m.MediaContent?.Select(media => media.Name).ToList(),
-                    SentAt = m.SentAt,
-                    ReadAt = m.ReadAt,
-                    UpdatedAt = m.UpdatedAt,
-                    RepliedToId = m.RepliedToId
-                }).ToList()
-            };
-
-            return Ok(conversationDto);
+            return Ok(MapToDto(conversation));
         }
         catch (UnauthorizedAccessException)
         {
@@ -92,7 +67,8 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             await conversationService.UpdateConversationAsync(id, User, conversationDto.Description);
-            return NoContent();
+            var updatedConversation = await conversationService.GetConversationByIdAsync(id, User);
+            return Ok(CreatedAtAction(nameof(GetConversationById), new { id = updatedConversation.ConversationId }, MapToDto(updatedConversation)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -115,7 +91,7 @@ public class ConversationsController(IConversationService conversationService) :
                 Content = messageDto.Content
             };
             var createdMessage = await conversationService.SendMessageAsync(User, message, messageDto.MediaNames);
-            return CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.MessageId }, createdMessage);
+            return Ok(CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.MessageId }, MapToDto(createdMessage)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -132,12 +108,10 @@ public class ConversationsController(IConversationService conversationService) :
     {
         try
         {
-            var updatedMessage = new Message
-            {
-                Content = messageDto.Content
-            };
+            var updatedMessage = new Message { Content = messageDto.Content };
             await conversationService.UpdateMessageAsync(id, User, updatedMessage, messageDto.MediaNames);
-            return NoContent();
+            var updatedMsg = await conversationService.GetMessageByIdAsync(id, User);
+            return Ok(CreatedAtAction(nameof(GetConversationById), new { id = updatedMsg.ConversationId }, MapToDto(updatedMsg)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -155,7 +129,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             await conversationService.DeleteMessageAsync(id, User);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {
@@ -179,7 +153,7 @@ public class ConversationsController(IConversationService conversationService) :
                 RepliedToId = replyMessageDto.RepliedToId
             };
             var createdMessage = await conversationService.ReplyToMessageAsync(User, message, replyMessageDto.MediaNames, replyMessageDto.RepliedToId);
-            return CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.MessageId }, createdMessage);
+            return Ok(CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.MessageId }, MapToDto(createdMessage)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -197,17 +171,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             var messages = await conversationService.GetMessagesInConversationAsync(conversationId, User);
-            var messageDtos = messages.Select(m => new MessageDto
-            {
-                MessageId = m.MessageId,
-                ConversationId = m.ConversationId,
-                Content = m.Content,
-                MediaNames = m.MediaContent?.Select(media => media.Name).ToList(),
-                SentAt = m.SentAt,
-                ReadAt = m.ReadAt,
-                UpdatedAt = m.UpdatedAt,
-                RepliedToId = m.RepliedToId
-            }).ToList();
+            var messageDtos = messages.Select(MapToDto).ToList();
 
             return Ok(messageDtos);
         }
@@ -227,19 +191,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             var message = await conversationService.GetMessageByIdAsync(id, User);
-            var messageDto = new MessageDto
-            {
-                MessageId = message.MessageId,
-                ConversationId = message.ConversationId,
-                Content = message.Content,
-                MediaNames = message.MediaContent?.Select(m => m.Name).ToList(),
-                SentAt = message.SentAt,
-                ReadAt = message.ReadAt,
-                UpdatedAt = message.UpdatedAt,
-                RepliedToId = message.RepliedToId
-            };
-
-            return Ok(messageDto);
+            return Ok(MapToDto(message));
         }
         catch (UnauthorizedAccessException)
         {
@@ -257,25 +209,7 @@ public class ConversationsController(IConversationService conversationService) :
         try
         {
             var conversations = await conversationService.GetConversationsForUserAsync(User);
-            var conversationDtos = conversations.Select(c => new ConversationDto
-            {
-                ConversationId = c.ConversationId,
-                User1UserName = c.User1.UserName,
-                User2UserName = c.User2.UserName,
-                Description = c.Description,
-                CreatedAt = c.CreatedAt,
-                Messages = c.Messages.Select(m => new MessageDto
-                {
-                    MessageId = m.MessageId,
-                    ConversationId = m.ConversationId,
-                    Content = m.Content,
-                    MediaNames = m.MediaContent?.Select(media => media.Name).ToList(),
-                    SentAt = m.SentAt,
-                    ReadAt = m.ReadAt,
-                    UpdatedAt = m.UpdatedAt,
-                    RepliedToId = m.RepliedToId
-                }).ToList()
-            }).ToList();
+            var conversationDtos = conversations.Select(MapToDto).ToList();
 
             return Ok(conversationDtos);
         }
@@ -287,5 +221,43 @@ public class ConversationsController(IConversationService conversationService) :
         {
             return NotFound();
         }
+    }
+
+    private static ConversationDto MapToDto(Conversation conversation)
+    {
+        return new ConversationDto
+        {
+            ConversationId = conversation.ConversationId,
+            User1UserName = conversation.User1.UserName,
+            User2UserName = conversation.User2.UserName,
+            Description = conversation.Description,
+            CreatedAt = conversation.CreatedAt,
+            Messages = conversation.Messages.Select(m => new MessageDto
+            {
+                MessageId = m.MessageId,
+                ConversationId = m.ConversationId,
+                Content = m.Content,
+                MediaNames = m.MediaContent?.Select(media => media.Name).ToList(),
+                SentAt = m.SentAt,
+                ReadAt = m.ReadAt,
+                UpdatedAt = m.UpdatedAt,
+                RepliedToId = m.RepliedToId
+            }).ToList()
+        };
+    }
+
+    private static MessageDto MapToDto(Message message)
+    {
+        return new MessageDto
+        {
+            MessageId = message.MessageId,
+            ConversationId = message.ConversationId,
+            Content = message.Content,
+            MediaNames = message.MediaContent?.Select(m => m.Name).ToList(),
+            SentAt = message.SentAt,
+            ReadAt = message.ReadAt,
+            UpdatedAt = message.UpdatedAt,
+            RepliedToId = message.RepliedToId
+        };
     }
 }

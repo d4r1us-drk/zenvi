@@ -8,7 +8,7 @@ namespace Zenvi.Core.Services;
 
 public interface IConversationService
 {
-    Task<Conversation> CreateConversationAsync(ClaimsPrincipal user, Conversation conversation);
+    Task<Conversation> CreateConversationAsync(ClaimsPrincipal user, string TargetUserUserName, string? description);
     Task DeleteConversationAsync(int id, ClaimsPrincipal user);
     Task<Conversation> GetConversationByIdAsync(int id, ClaimsPrincipal user);
     Task UpdateConversationAsync(int id, ClaimsPrincipal user, string description);
@@ -25,25 +25,34 @@ public class ConversationService(ApplicationDbContext context) : IConversationSe
 {
     private readonly LogHandler _logHandler = new(typeof(ConversationService));
 
-        public async Task<Conversation> CreateConversationAsync(ClaimsPrincipal user, Conversation conversation)
+    public async Task<Conversation> CreateConversationAsync(ClaimsPrincipal user, string targetUserUserName, string? description)
     {
         var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
             throw new UnauthorizedAccessException();
         }
-
+        
         var user1 = await context.Users.FindAsync(userId);
-        var user2 = await context.Users.FindAsync(conversation.User2.Id);
+
+        var user2 = await context.Users.FindAsync(targetUserUserName);
 
         if (user1 == null || user2 == null)
         {
             throw new KeyNotFoundException("User not found");
         }
 
-        conversation.User1 = user1;
-        conversation.User2 = user2;
-        conversation.CreatedAt = DateTime.UtcNow;
+        var conversation = new Conversation
+        {
+            User1 = user1,
+            User2 = user2,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            conversation.Description = description;
+        }
 
         context.Conversations.Add(conversation);
         await context.SaveChangesAsync();

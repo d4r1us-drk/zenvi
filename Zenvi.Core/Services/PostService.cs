@@ -8,10 +8,10 @@ namespace Zenvi.Core.Services;
 
 public interface IPostService
 {
-    Task<Post> CreatePostAsync(ClaimsPrincipal user, Post post, List<string>? mediaNames);
+    Task<Post> CreatePostAsync(ClaimsPrincipal user, string? content, List<string>? mediaNames);
     Task<List<Post>> GetAllPostsAsync();
     Task<Post> GetPostByIdAsync(int id);
-    Task UpdatePostAsync(int id, ClaimsPrincipal user, Post updatedPost, List<string>? mediaNames);
+    Task<Post> UpdatePostAsync(int id, ClaimsPrincipal user, string? content, List<string>? mediaNames);
     Task DeletePostAsync(int id, ClaimsPrincipal user);
     Task<Post> ReplyToPostAsync(ClaimsPrincipal user, Post post, List<string>? mediaNames, int repliedToId);
     Task<List<Post>> GetPostsFromFollowedUsersAsync(ClaimsPrincipal user);
@@ -21,7 +21,7 @@ public class PostService(ApplicationDbContext context) : IPostService
 {
     private readonly LogHandler _logHandler = new(typeof(PostService));
 
-    public async Task<Post> CreatePostAsync(ClaimsPrincipal user, Post post, List<string>? mediaNames)
+    public async Task<Post> CreatePostAsync(ClaimsPrincipal user, string? content, List<string>? mediaNames)
     {
         _logHandler.LogInfo("Creating a new post.");
 
@@ -39,8 +39,22 @@ public class PostService(ApplicationDbContext context) : IPostService
             throw new UnauthorizedAccessException();
         }
 
-        post.PostOp = postOp;
-        post.CreatedAt = DateTime.UtcNow;
+        if (string.IsNullOrWhiteSpace(content) && (mediaNames == null || !mediaNames.Any()))
+        {
+            _logHandler.LogError("Either content or media must be provided.", new ArgumentException());
+            throw new ArgumentException("Either content or media must be provided.");
+        }
+
+        var post = new Post
+        {
+            PostOp = postOp,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            post.Content = content;
+        }
 
         // Attach media to post
         if (mediaNames != null && mediaNames.Any())
@@ -95,12 +109,12 @@ public class PostService(ApplicationDbContext context) : IPostService
         return post;
     }
 
-    public async Task UpdatePostAsync(int id, ClaimsPrincipal user, Post updatedPost, List<string>? mediaNames)
+    public async Task<Post> UpdatePostAsync(int id, ClaimsPrincipal user, string? content, List<string>? mediaNames)
     {
         _logHandler.LogInfo($"Updating post with ID: {id}.");
 
         // Ensure that at least one of updatedPost.Content or mediaNames is provided
-        if (string.IsNullOrWhiteSpace(updatedPost.Content) && (mediaNames == null || !mediaNames.Any()))
+        if (string.IsNullOrWhiteSpace(content) && (mediaNames == null || !mediaNames.Any()))
         {
             _logHandler.LogError("Either content or media must be provided.", new ArgumentException());
             throw new ArgumentException("Either content or media must be provided.");
@@ -126,9 +140,9 @@ public class PostService(ApplicationDbContext context) : IPostService
             throw new UnauthorizedAccessException();
         }
 
-        if (!string.IsNullOrWhiteSpace(updatedPost.Content))
+        if (!string.IsNullOrWhiteSpace(content))
         {
-            post.Content = updatedPost.Content;
+            post.Content = content;
         }
 
         // Update media content
@@ -152,6 +166,7 @@ public class PostService(ApplicationDbContext context) : IPostService
         await context.SaveChangesAsync();
 
         _logHandler.LogInfo("Post updated successfully.");
+        return post;
     }
 
     public async Task DeletePostAsync(int id, ClaimsPrincipal user)

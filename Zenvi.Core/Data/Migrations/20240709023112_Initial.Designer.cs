@@ -12,7 +12,7 @@ using Zenvi.Core.Data.Context;
 namespace Zenvi.Core.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240708220251_Initial")]
+    [Migration("20240709023112_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

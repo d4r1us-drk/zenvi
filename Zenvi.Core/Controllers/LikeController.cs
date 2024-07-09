@@ -16,7 +16,7 @@ public class LikeController(ILikeService likeService) : ControllerBase
         try
         {
             await likeService.LikePostAsync(User, likeDto.PostId);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {
@@ -38,7 +38,7 @@ public class LikeController(ILikeService likeService) : ControllerBase
         try
         {
             await likeService.UnlikePostAsync(User, likeDto.PostId);
-            return NoContent();
+            return Ok();
         }
         catch (UnauthorizedAccessException)
         {

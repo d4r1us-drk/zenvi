@@ -2,16 +2,7 @@
 
 namespace Zenvi.Shared;
 
-public class CreatePostDto
-{
-    [Required]
-    [StringLength(5000)]
-    public string? Content { get; set; }
-
-    public List<string>? MediaNames { get; set; }
-}
-
-public class UpdatePostDto
+public class PostActionDto
 {
     public string? Content { get; set; }
 

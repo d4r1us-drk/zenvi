@@ -15,7 +15,7 @@ public class MediaService : IMediaService
 {
     private readonly string _storagePath;
     private readonly LogHandler _logHandler = new(typeof(MediaService));
-    private readonly int _maxFileSize = 1024 * 1024 * 10; // 10MB max
+    private const int MaxFileSize = 1024 * 1024 * 10; // 10MB max
     private readonly ApplicationDbContext _context;
 
     public MediaService(IHostEnvironment environment, IConfiguration configuration, ApplicationDbContext context)
@@ -48,7 +48,7 @@ public class MediaService : IMediaService
             throw new ArgumentException("File is null", nameof(file));
         }
 
-        if (file.Length > _maxFileSize)
+        if (file.Length > MaxFileSize)
         {
             _logHandler.LogError("File is too large.", new ArgumentException("File is too large", nameof(file)));
             throw new ArgumentException("File is too large", nameof(file));

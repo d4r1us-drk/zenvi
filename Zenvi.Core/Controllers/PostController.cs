@@ -12,14 +12,12 @@ namespace Zenvi.Core.Controllers;
 public class PostsController(IPostService postService) : ControllerBase
 {
     [HttpPost("create")]
-    public async Task<IActionResult> CreatePost([FromBody] CreatePostDto postDto)
+    public async Task<IActionResult> CreatePost([FromBody] PostActionDto postActionDto)
     {
         try
         {
-            var post = new Post { Content = postDto.Content };
-            var createdPost = await postService.CreatePostAsync(User, post, postDto.MediaNames);
-            var postResponse = MapToPostDto(createdPost);
-            return CreatedAtAction(nameof(GetPostById), new { id = postResponse.PostId }, postResponse);
+            var createdPost = await postService.CreatePostAsync(User, postActionDto.Content, postActionDto.MediaNames);
+            return Ok(CreatedAtAction(nameof(GetPostById), new { id = createdPost.Id }, MapToPostDto(createdPost)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -51,13 +49,12 @@ public class PostsController(IPostService postService) : ControllerBase
     }
 
     [HttpPut("update/{id:int}")]
-    public async Task<IActionResult> UpdatePost(int id, [FromBody] UpdatePostDto postDto)
+    public async Task<IActionResult> UpdatePost(int id, [FromBody] PostActionDto postDto)
     {
         try
         {
-            var updatedPost = new Post { Content = postDto.Content };
-            await postService.UpdatePostAsync(id, User, updatedPost, postDto.MediaNames);
-            return NoContent();
+            var updatedPst = await postService.UpdatePostAsync(id, User, postDto.Content, postDto.MediaNames);
+            return Ok(CreatedAtAction(nameof(GetPostById), new { id = updatedPst.Id }, MapToPostDto(updatedPst)));
         }
         catch (UnauthorizedAccessException)
         {
@@ -94,8 +91,7 @@ public class PostsController(IPostService postService) : ControllerBase
         {
             var post = new Post { Content = replyPostDto.Content };
             var createdPost = await postService.ReplyToPostAsync(User, post, replyPostDto.MediaNames, replyPostDto.RepliedToId);
-            var postResponse = MapToPostDto(createdPost);
-            return CreatedAtAction(nameof(GetPostById), new { id = postResponse.PostId }, postResponse);
+            return Ok(CreatedAtAction(nameof(GetPostById), new { id = createdPost.Id }, MapToPostDto(createdPost)));
         }
         catch (UnauthorizedAccessException)
         {
