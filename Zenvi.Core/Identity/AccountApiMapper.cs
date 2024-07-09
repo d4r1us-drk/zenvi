@@ -96,23 +96,43 @@ public static class AccountApiMapper
         });
 
         routeGroup.MapPost("/login", async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>>
-            ([FromBody] LoginUserDto login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies, [FromServices] IServiceProvider sp) =>
+        ([FromBody] LoginUserDto login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies,
+            [FromServices] IServiceProvider sp) =>
         {
             LogHandler.LogInfo("User login attempt.");
 
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
+            var userManager = sp.GetRequiredService<UserManager<User>>();
+
+            var user = await userManager.FindByEmailAsync(login.Email);
+            if (user == null)
+            {
+                LogHandler.LogError("User login failed. User not found.", new UnauthorizedAccessException());
+                return TypedResults.Problem("Invalid login attempt.", statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            if (user.Banned)
+            {
+                LogHandler.LogError("User login failed. User is banned.", new UnauthorizedAccessException());
+                return TypedResults.Problem("Your account has been banned.",
+                    statusCode: StatusCodes.Status403Forbidden);
+            }
 
             var useCookieScheme = useCookies == true || useSessionCookies == true;
             var isPersistent = useCookies == true && useSessionCookies != true;
-            signInManager.AuthenticationScheme = useCookieScheme ? IdentityConstants.ApplicationScheme : IdentityConstants.BearerScheme;
+            signInManager.AuthenticationScheme =
+                useCookieScheme ? IdentityConstants.ApplicationScheme : IdentityConstants.BearerScheme;
 
-            var result = await signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent, lockoutOnFailure: true);
+            var result =
+                await signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent,
+                    lockoutOnFailure: true);
 
             if (result.RequiresTwoFactor)
             {
                 if (!string.IsNullOrEmpty(login.TwoFactorCode))
                 {
-                    result = await signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, isPersistent, rememberClient: isPersistent);
+                    result = await signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, isPersistent,
+                        rememberClient: isPersistent);
                 }
                 else if (!string.IsNullOrEmpty(login.TwoFactorRecoveryCode))
                 {
@@ -123,7 +143,7 @@ public static class AccountApiMapper
             if (!result.Succeeded)
             {
                 LogHandler.LogError("User login failed.", new UnauthorizedAccessException());
-                return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+                return TypedResults.Problem("Invalid login attempt.", statusCode: StatusCodes.Status401Unauthorized);
             }
 
             LogHandler.LogInfo("User logged in successfully.");
@@ -137,13 +157,15 @@ public static class AccountApiMapper
         })
         .RequireAuthorization();
 
-        routeGroup.MapPost("/refresh", async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>
-            ([FromBody] RefreshUserDto refreshRequest, [FromServices] IServiceProvider sp) =>
+        routeGroup.MapPost("/refresh",
+            async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>
+                ([FromBody] RefreshUserDto refreshRequest, [FromServices] IServiceProvider sp) =>
         {
             LogHandler.LogInfo("Refreshing user token.");
 
             var signInManager = sp.GetRequiredService<SignInManager<User>>();
-            var refreshTokenProtector = bearerTokenOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
+            var refreshTokenProtector =
+                bearerTokenOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
             var refreshTicket = refreshTokenProtector.Unprotect(refreshRequest.RefreshToken);
 
             if (refreshTicket?.Properties.ExpiresUtc is not { } expiresUtc ||
@@ -161,7 +183,8 @@ public static class AccountApiMapper
         });
 
         routeGroup.MapGet("/confirmEmail", async Task<Results<ContentHttpResult, UnauthorizedHttpResult>>
-            ([FromQuery] string userId, [FromQuery] string code, [FromQuery] string? changedEmail, [FromServices] IServiceProvider sp) =>
+            ([FromQuery] string userId, [FromQuery] string code, [FromQuery] string? changedEmail,
+                [FromServices] IServiceProvider sp) =>
         {
             LogHandler.LogInfo("Email confirmation attempt.");
 
@@ -215,7 +238,8 @@ public static class AccountApiMapper
         });
 
         routeGroup.MapPost("/resendConfirmationEmail", async Task<Ok>
-            ([FromBody] ResendConfirmationEmailUserDto resendRequest, HttpContext context, [FromServices] IServiceProvider sp) =>
+            ([FromBody] ResendConfirmationEmailUserDto resendRequest, HttpContext context,
+                [FromServices] IServiceProvider sp) =>
         {
             LogHandler.LogInfo("Resending confirmation email.");
 
@@ -244,7 +268,8 @@ public static class AccountApiMapper
                 var code = await userManager.GeneratePasswordResetTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                await emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
+                await emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email,
+                    HtmlEncoder.Default.Encode(code));
             }
 
             LogHandler.LogInfo("Password reset process initiated.");
@@ -290,7 +315,8 @@ public static class AccountApiMapper
         var accountGroup = routeGroup.MapGroup("/manage").RequireAuthorization();
 
         accountGroup.MapPost("/2fa", async Task<Results<Ok<TwoFactorResponse>, ValidationProblem, NotFound>>
-            (ClaimsPrincipal claimsPrincipal, [FromBody] TwoFactorUserDto tfaRequest, [FromServices] IServiceProvider sp) =>
+            (ClaimsPrincipal claimsPrincipal, [FromBody] TwoFactorUserDto tfaRequest,
+                [FromServices] IServiceProvider sp) =>
         {
             LogHandler.LogInfo("Two-factor authentication setup attempt.");
 
@@ -306,7 +332,8 @@ public static class AccountApiMapper
             {
                 if (tfaRequest.ResetSharedKey)
                 {
-                    LogHandler.LogError("Resetting shared key and enabling 2FA is not allowed.", new InvalidOperationException());
+                    LogHandler.LogError("Resetting shared key and enabling 2FA is not allowed.",
+                        new InvalidOperationException());
                     return CreateValidationProblem("CannotResetSharedKeyAndEnable",
                         "Resetting the 2fa shared key must disable 2fa until a 2fa token based on the new shared key is validated.");
                 }
@@ -316,7 +343,8 @@ public static class AccountApiMapper
                     return CreateValidationProblem("RequiresTwoFactor",
                         "No 2fa token was provided by the request. A valid 2fa token is required to enable 2fa.");
                 }
-                else if (!await userManager.VerifyTwoFactorTokenAsync(user, userManager.Options.Tokens.AuthenticatorTokenProvider, tfaRequest.TwoFactorCode))
+                else if (!await userManager.VerifyTwoFactorTokenAsync(user,
+                             userManager.Options.Tokens.AuthenticatorTokenProvider, tfaRequest.TwoFactorCode))
                 {
                     LogHandler.LogError("Invalid 2FA token.", new InvalidOperationException());
                     return CreateValidationProblem("InvalidTwoFactorCode",
@@ -336,7 +364,8 @@ public static class AccountApiMapper
             }
 
             string[]? recoveryCodes = null;
-            if (tfaRequest.ResetRecoveryCodes || tfaRequest.Enable == true && await userManager.CountRecoveryCodesAsync(user) == 0)
+            if (tfaRequest.ResetRecoveryCodes ||
+                tfaRequest.Enable == true && await userManager.CountRecoveryCodesAsync(user) == 0)
             {
                 var recoveryCodesEnumerable = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
                 recoveryCodes = recoveryCodesEnumerable?.ToArray();
@@ -388,7 +417,8 @@ public static class AccountApiMapper
         });
 
         accountGroup.MapPost("/update", async Task<Results<Ok<AboutUserDto>, ValidationProblem, NotFound>>
-            (ClaimsPrincipal claimsPrincipal, [FromForm] UpdateUserDto updateRequest, HttpContext context, [FromServices] IServiceProvider sp, [FromServices] ApplicationDbContext dbContext) =>
+            (ClaimsPrincipal claimsPrincipal, [FromForm] UpdateUserDto updateRequest, HttpContext context,
+                [FromServices] IServiceProvider sp, [FromServices] ApplicationDbContext dbContext) =>
         {
             LogHandler.LogInfo("Updating user info.");
 
@@ -403,7 +433,8 @@ public static class AccountApiMapper
             if (!string.IsNullOrEmpty(updateRequest.NewEmail) && !EmailAddressAttribute.IsValid(updateRequest.NewEmail))
             {
                 LogHandler.LogError("Invalid email address.", new ArgumentException());
-                return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(updateRequest.NewEmail)));
+                return CreateValidationProblem(
+                    IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(updateRequest.NewEmail)));
             }
 
             if (!string.IsNullOrEmpty(updateRequest.NewPassword))
@@ -415,21 +446,12 @@ public static class AccountApiMapper
                         "The old password is required to set a new password. If the old password is forgotten, use /resetPassword.");
                 }
 
-                var changePasswordResult = await userManager.ChangePasswordAsync(user, updateRequest.OldPassword, updateRequest.NewPassword);
+                var changePasswordResult =
+                    await userManager.ChangePasswordAsync(user, updateRequest.OldPassword, updateRequest.NewPassword);
                 if (!changePasswordResult.Succeeded)
                 {
                     LogHandler.LogError("Password change failed.", new InvalidOperationException());
                     return CreateValidationProblem(changePasswordResult);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(updateRequest.NewEmail))
-            {
-                var email = await userManager.GetEmailAsync(user);
-
-                if (email != updateRequest.NewEmail)
-                {
-                    await SendConfirmationEmailAsync(user, userManager, context, updateRequest.NewEmail, isChange: true);
                 }
             }
 
@@ -460,7 +482,8 @@ public static class AccountApiMapper
                     }
                     else
                     {
-                        LogHandler.LogError("Invalid media format for profile picture.", new InvalidOperationException());
+                        LogHandler.LogError("Invalid media format for profile picture.",
+                            new InvalidOperationException());
                         return CreateValidationProblem("InvalidMediaType", "The provided media format isn't a picture");
                     }
                 }
@@ -484,8 +507,10 @@ public static class AccountApiMapper
                     }
                     else
                     {
-                        LogHandler.LogError("Invalid media format for banner picture.", new InvalidOperationException());
-                        return CreateValidationProblem("InvalidMediaType", "The provided media format isn't a banner picture");
+                        LogHandler.LogError("Invalid media format for banner picture.",
+                            new InvalidOperationException());
+                        return CreateValidationProblem("InvalidMediaType",
+                            "The provided media format isn't a banner picture");
                     }
                 }
                 else
@@ -509,6 +534,17 @@ public static class AccountApiMapper
                 }
             }
 
+            if (!string.IsNullOrEmpty(updateRequest.NewEmail))
+            {
+                var email = await userManager.GetEmailAsync(user);
+
+                if (email != updateRequest.NewEmail)
+                {
+                    await SendConfirmationEmailAsync(user, userManager, context, updateRequest.NewEmail,
+                        isChange: true);
+                }
+            }
+
             var result = await userManager.UpdateAsync(user);
 
             if (result.Succeeded)
@@ -521,7 +557,8 @@ public static class AccountApiMapper
             return CreateValidationProblem(result);
         });
 
-        async Task SendConfirmationEmailAsync(User user, UserManager<User> userManager, HttpContext context, string email, bool isChange = false)
+        async Task SendConfirmationEmailAsync(User user, UserManager<User> userManager, HttpContext context,
+            string email, bool isChange = false)
         {
             if (confirmEmailEndpointName is null)
             {
@@ -547,7 +584,8 @@ public static class AccountApiMapper
             }
 
             var confirmEmailUrl = linkGenerator.GetUriByName(context, confirmEmailEndpointName, routeValues)
-                ?? throw new NotSupportedException($"Could not find endpoint named '{confirmEmailEndpointName}'.");
+                                  ?? throw new NotSupportedException(
+                                      $"Could not find endpoint named '{confirmEmailEndpointName}'.");
 
             await emailSender.SendConfirmationLinkAsync(user, email, HtmlEncoder.Default.Encode(confirmEmailUrl));
             LogHandler.LogInfo("Confirmation email sent successfully.");
@@ -557,7 +595,8 @@ public static class AccountApiMapper
     }
 
     private static ValidationProblem CreateValidationProblem(string errorCode, string errorDescription) =>
-        TypedResults.ValidationProblem(new Dictionary<string, string[]> {
+        TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
             { errorCode, [errorDescription] }
         });
 
@@ -591,7 +630,8 @@ public static class AccountApiMapper
     {
         return new AboutUserDto
         {
-            Email = await userManager.GetEmailAsync(user) ?? throw new NotSupportedException("Users must have an email."),
+            Email = await userManager.GetEmailAsync(user) ??
+                    throw new NotSupportedException("Users must have an email."),
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
             Name = user.Name,
             Surname = user.Surname,
@@ -608,7 +648,9 @@ public static class AccountApiMapper
         private IEndpointConventionBuilder InnerAsConventionBuilder => inner;
 
         public void Add(Action<EndpointBuilder> convention) => InnerAsConventionBuilder.Add(convention);
-        public void Finally(Action<EndpointBuilder> finallyConvention) => InnerAsConventionBuilder.Finally(finallyConvention);
+
+        public void Finally(Action<EndpointBuilder> finallyConvention) =>
+            InnerAsConventionBuilder.Finally(finallyConvention);
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
