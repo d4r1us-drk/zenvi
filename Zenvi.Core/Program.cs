@@ -13,6 +13,18 @@ using Zenvi.Core.Utils;
 var builder = WebApplication.CreateBuilder(args);
 var logHandler = new LogHandler(typeof(Program));
 
+// Load configuration from /config/appsettings.json
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
+        .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
+}
+else
+{
+    builder.Configuration.SetBasePath("/config")
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+}
+
 // Add services to the container.
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IPostService, PostService>();
@@ -81,6 +93,34 @@ builder.Services.AddFluentEmail(smtpUsername)
 builder.Services.AddTransient<IEmailSender<User>, AccountEmailSender>();
 
 var app = builder.Build();
+
+if (builder.Environment.IsProduction())
+{
+    if (builder.Configuration.GetValue<bool>("MigrationsApplied") == false)
+    {
+        using var scope = app.Services.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        try
+        {
+            context.Database.Migrate();
+
+            // Update the appsettings.json to set MigrationsApplied to true
+            var configFilePath = Path.Combine("/config", "appsettings.json");
+            var json = File.ReadAllText(configFilePath);
+            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            jsonObj["MigrationsApplied"] = true;
+            string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(configFilePath, output);
+        }
+        catch (Exception ex)
+        {
+            logHandler.LogFatal("Something terrible happened while trying to apply database migrations.", ex);
+            throw;
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

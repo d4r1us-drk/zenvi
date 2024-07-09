@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{85132255-EF4C-4CD7-8D12-DCE38D9F3906}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
+		.env = .env
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zenvi.Core", "Zenvi.Core\Zenvi.Core.csproj", "{1EA7F983-D12D-415F-BC41-ADEDE20ED800}"

@@ -67,7 +67,7 @@ public static class AccountApiMapper
 
             if (string.IsNullOrEmpty(email) || !EmailAddressAttribute.IsValid(email))
             {
-                LogHandler.LogError("Invalid email.", new ArgumentException());
+                LogHandler.LogError("Invalid email.", new ArgumentException("Invalid email."));
                 return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(email)));
             }
 
