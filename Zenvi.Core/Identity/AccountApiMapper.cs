@@ -150,10 +150,20 @@ public static class AccountApiMapper
             return TypedResults.Empty;
         });
 
+        // Provide an end point to clear the cookie for logout
+        //
+        // For more information on the logout endpoint and antiforgery, see:
+        // https://learn.microsoft.com/aspnet/core/blazor/security/webassembly/standalone-with-identity#antiforgery-support
         routeGroup.MapPost("/logout", async (SignInManager<User> signInManager, [FromBody] object empty) =>
         {
-            await signInManager.SignOutAsync();
-            return Results.Ok();
+            if (empty is not null)
+            {
+                await signInManager.SignOutAsync();
+
+                return Results.Ok();
+            }
+
+            return Results.Unauthorized();
         })
         .RequireAuthorization();
 

@@ -71,6 +71,11 @@ builder.Services.AddIdentityApiEndpoints<User>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services
+    .AddAuthentication(IdentityConstants.ApplicationScheme)
+    .AddIdentityCookies();
+// Configure authorization
+builder.Services.AddAuthorizationBuilder();
 builder.Services.AddAuthorization();
 
 string smtpUsername = "", smtpPassword = "";
@@ -92,6 +97,15 @@ builder.Services.AddFluentEmail(smtpUsername)
 
 builder.Services.AddTransient<IEmailSender<User>, AccountEmailSender>();
 
+builder.Services.AddCors(
+    options => options.AddPolicy(
+        "wasm",
+        policy => policy.WithOrigins([builder.Configuration["BackendUrl"] ?? "https://localhost:5000",
+                builder.Configuration["FrontendUrl"] ?? "https://localhost:5001"])
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()));
+
 var app = builder.Build();
 
 if (builder.Environment.IsProduction())
@@ -104,6 +118,7 @@ if (builder.Environment.IsProduction())
 
         try
         {
+            logHandler.LogInfo("Applying initial database migrations...");
             context.Database.Migrate();
 
             // Update the appsettings.json to set MigrationsApplied to true
@@ -129,10 +144,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Activate the CORS policy
+app.UseCors("wasm");
+
+// Create routes for the identity endpoints
 app.MapAccountApi();
 
 app.UseHttpsRedirection();
 
+// Enable authentication and authorization after CORS Middleware
+// processing (UseCors) in case the Authorization Middleware tries
+// to initiate a challenge before the CORS Middleware has a chance
+// to set the appropriate headers.
 app.UseAuthentication();
 app.UseAuthorization();
 
