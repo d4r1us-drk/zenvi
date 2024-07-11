@@ -44,6 +44,16 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
+builder.Services.AddCors(options => options.AddPolicy(
+    "wasm",
+    policy => policy.WithOrigins([
+            builder.Configuration["BackendUrl"] ?? "https://localhost:5000",
+            builder.Configuration["FrontendUrl"] ?? "https://localhost:5001"
+        ])
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials()));
+
 string connectionString;
 if (builder.Environment.IsDevelopment())
 {
@@ -96,15 +106,6 @@ builder.Services.AddFluentEmail(smtpUsername)
     });
 
 builder.Services.AddTransient<IEmailSender<User>, AccountEmailSender>();
-
-builder.Services.AddCors(
-    options => options.AddPolicy(
-        "wasm",
-        policy => policy.WithOrigins([builder.Configuration["BackendUrl"] ?? "https://localhost:5000",
-                builder.Configuration["FrontendUrl"] ?? "https://localhost:5001"])
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()));
 
 var app = builder.Build();
 
