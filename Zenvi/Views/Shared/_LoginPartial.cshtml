@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var userId = UserManager.GetUserId(User);
+        var user = await UserManager.Users
+            .Include(u => u.ProfilePicture)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        var profilePicturePath = user.ProfilePicture != null
+            ? Url.Content($"~/media/{user.ProfilePicture.Name}")
+            : Url.Content("~/images/profile-picture-placeholder.png");
+
+        <li class="nav-item d-flex align-items-center">
+            <a class="nav-link d-flex align-items-center" asp-area="Identity" asp-page="/Account/Manage/Index" title="Profile">
+                <img src="@profilePicturePath" alt="Profile Picture" class="profile-picture" />
+                <span class="nav-link ml-2">@user.Name @user.Surname</span>
+            </a>
+            <form class="form-inline ml-2" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
+</ul>

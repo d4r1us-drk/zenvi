@@ -16,10 +16,10 @@ services:
     networks:
       - zenvinet
 
-  zenvi.core:
+  zenvi:
     build:
       context: .
-      dockerfile: Zenvi.Core/Dockerfile
+      dockerfile: Zenvi/Dockerfile
     environment:
       DATABASE_HOST: zenvidb
       DATABASE_PORT: ${DATABASE_PORT}
@@ -36,14 +36,3 @@ services:
     volumes:
       - ${APPDATA_PATH}:/data
       - ${CONFIG_PATH}:/config
-
-  zenvi.client:
-    build:
-      context: .
-      dockerfile: Zenvi.Client/Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - zenvi.core
-    networks:
-      - zenvinet

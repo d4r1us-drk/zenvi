@@ -1,0 +1,87 @@
+﻿@page
+@using NuGet.Common
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Username" class="form-control" placeholder="Username" disabled />
+                <label asp-for="Username" class="form-label"></label>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Name" class="form-control" placeholder="Name" />
+                <label asp-for="Input.Name" class="form-label"></label>
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Surname" class="form-control" placeholder="Surname" />
+                <label asp-for="Input.Surname" class="form-label"></label>
+                <span asp-validation-for="Input.Surname" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea asp-for="Input.Bio" class="form-control" placeholder="Bio"></textarea>
+                <label asp-for="Input.Bio" class="form-label"></label>
+                <span asp-validation-for="Input.Bio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.ProfilePicture" class="form-label">Change profile picture</label>
+                @if (Model.ProfilePicturePath != null)
+                {
+                    <div style="display: flex; margin: 5px">
+                        <button type="submit" asp-page-handler="DeleteProfilePicture" class="btn btn-danger" style="margin-right: 5px">Delete</button>
+                        <input asp-for="Input.ProfilePicture" class="form-control" type="file"/>
+                    </div>
+                }
+                else
+                {
+                    <input asp-for="Input.ProfilePicture" class="form-control" type="file" />
+                }
+                <span asp-validation-for="Input.ProfilePicture" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.BannerPicture" class="form-label">Change banner picture</label>
+                @if (Model.BannerPicturePath != null)
+                {
+                    <div style="display: flex; margin: 5px">
+                        <button type="submit" asp-page-handler="DeleteBannerPicture" class="btn btn-danger" style="margin-right: 5px">Delete</button>
+                        <input asp-for="Input.BannerPicture" class="form-control" type="file" />
+                    </div>
+                }
+                else
+                {
+                    <input asp-for="Input.BannerPicture" class="form-control" type="file" />
+                }
+                <span asp-validation-for="Input.BannerPicture" class="text-danger"></span>
+            </div>
+
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card_background_img" style="background-image: url('@Model.BannerPicturePath');"></div>
+            <div class="card_profile_img" style="background-image: url('@Model.ProfilePicturePath');"></div>
+            <div class="user_details">
+                <h3>@Model.Input.Name @Model.Input.Surname</h3>
+                <p>@Model.Input.Bio</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

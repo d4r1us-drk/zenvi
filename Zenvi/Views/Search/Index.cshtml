@@ -1,0 +1,109 @@
+@model Zenvi.Models.SearchViewModel
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="search-bar mb-4">
+                <form asp-action="Index" method="get">
+                    <input type="text" name="query" class="form-control" value="@Model.Query" placeholder="Search users and posts" />
+                </form>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Query))
+            {
+                <div id="search-results">
+                    @if (Model.Users.Any())
+                    {
+                        <h3>Users</h3>
+                        <div id="user-results">
+                            @foreach (var user in Model.Users)
+                            {
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(user.ProfilePicture != null ? Url.Content($"~/media/{user.ProfilePicture.Name}") : Url.Content("~/images/profile-picture-placeholder.png"))" class="profile-picture" alt="Profile Picture" />
+                                            <div class="ml-3">
+                                                <h5>@user.Name @user.Surname</h5>
+                                                <p>@user.UserName</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (Model.Posts.Any())
+                    {
+                        <h3 class="mt-4">Posts</h3>
+                        <div id="post-container">
+                            @await Html.PartialAsync("_PostListPartial", Model.Posts)
+                        </div>
+                    }
+
+                    @if (!Model.Users.Any() && !Model.Posts.Any())
+                    {
+                        <p>No results found for "@Model.Query".</p>
+                    }
+
+                    <div id="loading-spinner" style="display:none;">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function toggleLike(postId, button) {
+        try {
+            const response = await fetch('/api/LikesApi/ToggleLikePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(postId)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const likeSpan = button.querySelector('.like');
+                if (data && data.likeCount !== undefined) {
+                    likeSpan.textContent = `Like (${data.likeCount})`;
+                } else {
+                    console.error('Unexpected response format:', data);
+                }
+            } else {
+                console.error('Failed to toggle like:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+    }
+
+    let page = @Model.Page;
+    const pageSize = @Model.PageSize;
+    const postContainer = document.getElementById('post-container');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    let isLoading = false;
+
+    window.addEventListener('scroll', async () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
+            isLoading = true;
+            loadingSpinner.style.display = 'block';
+            page++;
+
+            const response = await fetch(`@Url.Action("GetPosts", "Search")?query=@Model.Query&page=${page}&pageSize=${pageSize}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const resultsHtml = await response.text();
+            postContainer.insertAdjacentHTML('beforeend', resultsHtml);
+            isLoading = false;
+            loadingSpinner.style.display = 'none';
+        }
+    });
+</script>
+}

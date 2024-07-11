@@ -1,0 +1,118 @@
+﻿@model Zenvi.Models.HomeViewModel
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card_background_img" style="background-image: url('@(Model.User.BannerPicture != null ? Url.Content($"~/media/{Model.User.BannerPicture.Name}") : Url.Content("~/images/profile-banner-placeholder.png"))');"></div>
+                <div class="card_profile_img" style="background-image: url('@(Model.User.ProfilePicture != null ? Url.Content($"~/media/{Model.User.ProfilePicture.Name}") : Url.Content("~/images/profile-picture-placeholder.png"))');"></div>
+                <div class="user_details justify-content-center" style="display: flex;">
+                    <h3>@Model.User.Name @Model.User.Surname</h3>
+                    <a href="~/Identity/Account/Manage" class="btn btn-primary" style="margin-left: 20px;">Edit profile</a>
+                </div>
+            </div>
+            <!-- Post Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center;">
+                            <button type="submit" class="btn btn-primary mt-2" style="margin-right: 20px">Post!</button>
+                            <label for="mediaFiles" class="custom-file-upload">
+                                <i class="fas fa-cloud-upload-alt"></i> <span id="upload-text">Upload Media</span>
+                            </label>
+                            <input type="file" class="form-control-file" id="mediaFiles" name="mediaFiles" multiple />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <div id="post-container">
+                @await Html.PartialAsync("_PostListPartial", Model)
+            </div>
+            <div id="loading-spinner" style="display:none;">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("mediaFiles").addEventListener("change", function () {
+            var count = this.files.length;
+            var text = count > 1 ? count + " files selected" : (count === 1 ? count + " file selected" : "Upload Media");
+            document.getElementById("upload-text").innerText = text;
+        });
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/postHub")
+            .build();
+
+        connection.on("ReceiveNewPostNotification", function () {
+            const notification = document.createElement("div");
+            notification.className = "alert alert-info";
+            notification.innerHTML = "New posts are available. <a href='/Home/Index'>Click here to refresh</a>.";
+            document.body.insertBefore(notification, document.body.firstChild);
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        async function toggleLike(postId, button) {
+            try {
+                const response = await fetch('/api/LikesApi/ToggleLikePost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(postId)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const likeSpan = button.querySelector('.like');
+                    if (data && data.likeCount !== undefined) {
+                        likeSpan.textContent = `Like (${data.likeCount})`;
+                    } else {
+                        console.error('Unexpected response format:', data);
+                    }
+                } else {
+                    console.error('Failed to toggle like:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        }
+
+        let page = 1;
+        const pageSize = 10;
+        const postContainer = document.getElementById('post-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        let isLoading = false;
+
+        window.addEventListener('scroll', async () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
+                isLoading = true;
+                loadingSpinner.style.display = 'block';
+                page++;
+
+                const response = await fetch(`@Url.Action("GetPosts", "Home")?page=${page}&pageSize=${pageSize}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const postsHtml = await response.text();
+                postContainer.insertAdjacentHTML('beforeend', postsHtml);
+                isLoading = false;
+                loadingSpinner.style.display = 'none';
+            }
+        });
+    </script>
+}
