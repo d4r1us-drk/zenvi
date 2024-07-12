@@ -108,7 +108,58 @@ public class HomeController(UserManager<User> userManager, IPostService postServ
             Posts = posts,
             LikedPostIds = likedPostIds
         };
-        return PartialView("_PostListPartial", model);
+        return PartialView("_PostListPartial", model.Posts);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> FollowedPosts(int page = 1, int pageSize = 10)
+    {
+        var posts = await postService.GetPostsFromFollowedUsersAsync(User, page, pageSize);
+        var likedPostIds = await likeService.GetLikedPostIdsAsync(User);
+        var userId = userManager.GetUserId(User);
+        var user = await userManager.Users
+            .Include(u => u.ProfilePicture)
+            .Include(u => u.BannerPicture)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        var model = new HomeViewModel
+        {
+            User = user,
+            Posts = posts,
+            LikedPostIds = likedPostIds
+        };
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFollowedPosts(int page = 1, int pageSize = 10)
+    {
+        var posts = await postService.GetPostsFromFollowedUsersAsync(User, page, pageSize);
+        var likedPostIds = await likeService.GetLikedPostIdsAsync(User);
+        var model = new HomeViewModel
+        {
+            Posts = posts,
+            LikedPostIds = likedPostIds
+        };
+        return PartialView("_PostListPartial", model.Posts);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ReplyToPostFromHome(int postId)
+    {
+        var post = await postService.GetPostByIdAsync(postId);
+        var replies = await postService.GetRepliesAsync(postId);
+        var likedPostIds = await likeService.GetLikedPostIdsAsync(User);
+
+        var model = new PostViewModel
+        {
+            Post = post,
+            Replies = replies,
+            LikedPostIds = likedPostIds.ToList()
+        };
+
+        ViewData["ShowReplyPopup"] = true;
+        return View("ViewPost", model);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

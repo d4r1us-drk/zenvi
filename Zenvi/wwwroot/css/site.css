@@ -38,11 +38,12 @@ ul {
   justify-content: space-between;
   align-items: center;
   color: white;
+  font-size: 18px;
 }
 
 .navbar .logo {
   font-family: 'Audiowide', serif;
-  font-size: 24px;
+  font-size: 28px;
 }
 
 .navbar-nav {

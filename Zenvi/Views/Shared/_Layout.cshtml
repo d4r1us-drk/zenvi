@@ -25,28 +25,31 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">
-                            <i class="fas fa-search"></i> Search
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Messages" asp-action="Index">
-                            <i class="fas fa-envelope"></i> Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="UserPosts">
-                            <i class="fas fa-user"></i> My Posts
-                        </a>
-                    </li>
-                </ul>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home" style="font-size: 24px; margin-right: 10px;"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="FollowedPosts">
+                                <i class="fas fa-users" style="font-size: 24px; margin-right: 10px;"></i> Following
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">
+                                <i class="fas fa-search" style="font-size: 24px; margin-right: 10px;"></i> Search
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="UserPosts">
+                                <i class="fas fa-user" style="font-size: 24px; margin-right: 10px;"></i> My Posts
+                            </a>
+                        </li>
+                    </ul>
+                }
                 <partial name="_LoginPartial"/>
             </div>
         </div>

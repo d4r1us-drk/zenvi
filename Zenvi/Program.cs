@@ -15,6 +15,7 @@ var logHandler = new LogHandler(typeof(Program));
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
 
 string connectionString;
 if (builder.Environment.IsDevelopment())
@@ -60,6 +61,12 @@ builder.Services.AddFluentEmail(smtpUsername)
     });
 
 builder.Services.AddTransient<IEmailSender<User>, IdentityEmailSender>();
+
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();

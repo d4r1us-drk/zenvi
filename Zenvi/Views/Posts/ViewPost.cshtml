@@ -1,0 +1,256 @@
+@model Zenvi.Models.PostViewModel
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <button class="btn btn-secondary" onclick="window.history.back()">Back</button>
+            </div>
+
+            <div class="post card mb-4">
+                <div class="card-body">
+                    <div class="post-header">
+                        <a asp-controller="Posts" asp-action="UserPosts" asp-route-userId="@Model.Post.PostOp.Id">
+                            <img src="@(Model.Post.PostOp.ProfilePicture != null ? Url.Content($"~/media/{Model.Post.PostOp.ProfilePicture.Name}") : Url.Content("~/images/profile-picture-placeholder.png"))" class="profile-picture" alt="Profile Picture" />
+                            <div class="post-header-info">
+                                <strong>@Model.Post.PostOp.Name @Model.Post.PostOp.Surname</strong>
+                                <span class="post-date">@Model.Post.CreatedAt.ToString("HH:mm - MMMM dd, yyyy")</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="post-content">
+                        @Model.Post.Content
+                    </div>
+                    @if (Model.Post.MediaContent != null && Model.Post.MediaContent.Any())
+                    {
+                        <div id="carousel-@Model.Post.Id" class="carousel slide post-media-carousel @(Model.Post.MediaContent.Count > 1 ? "" : "carousel-single")" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                @for (var i = 0; i < Model.Post.MediaContent.Count; i++)
+                                {
+                                    var media = Model.Post.MediaContent[i];
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        @if (media.Type.StartsWith("image"))
+                                        {
+                                            <img src="~/media/@media.Name" alt="Post Media" class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
+                                        }
+                                        else if (media.Type.StartsWith("video"))
+                                        {
+                                            <video controls class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
+                                                <source src="~/media/@media.Name" type="@media.Type">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            @if (Model.Post.MediaContent.Count > 1)
+                            {
+                                <a class="carousel-control-prev" href="#carousel-@Model.Post.Id" role="button" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" href="#carousel-@Model.Post.Id" role="button" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </a>
+                            }
+                        </div>
+                    }
+                    <div class="post-actions mt-2">
+                        <button class="btn like p-0" onclick="toggleLike(@Model.Post.Id, this)">
+                            <i class="far fa-thumbs-up"></i> <span class="like">Like (@Model.Post.LikeCount)</span>
+                        </button>
+                        <button class="btn comment p-0" onclick="showReplyPopup(@Model.Post.Id)">
+                            <i class="far fa-comment"></i> Reply
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Replies -->
+            <div id="reply-container">
+                @foreach (var reply in Model.Replies)
+                {
+                    <div class="post card mb-4">
+                        <div class="card-body">
+                            <div class="post-header">
+                                <a asp-controller="Posts" asp-action="UserPosts" asp-route-userId="@reply.PostOp.Id">
+                                    <img src="@(reply.PostOp.ProfilePicture != null ? Url.Content($"~/media/{reply.PostOp.ProfilePicture.Name}") : Url.Content("~/images/profile-picture-placeholder.png"))" class="profile-picture" alt="Profile Picture" />
+                                    <div class="post-header-info">
+                                        <strong>@reply.PostOp.Name @reply.PostOp.Surname</strong>
+                                        <span class="post-date">@reply.CreatedAt.ToString("HH:mm - MMMM dd, yyyy")</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="post-content">
+                                @reply.Content
+                            </div>
+                            @if (reply.MediaContent != null && reply.MediaContent.Any())
+                            {
+                                <div id="carousel-@reply.Id" class="carousel slide post-media-carousel @(reply.MediaContent.Count > 1 ? "" : "carousel-single")" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        @for (var i = 0; i < reply.MediaContent.Count; i++)
+                                        {
+                                            var media = reply.MediaContent[i];
+                                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                @if (media.Type.StartsWith("image"))
+                                                {
+                                                    <img src="~/media/@media.Name" alt="Post Media" class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
+                                                }
+                                                else if (media.Type.StartsWith("video"))
+                                                {
+                                                    <video controls class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
+                                                        <source src="~/media/@media.Name" type="@media.Type">
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                    @if (reply.MediaContent.Count > 1)
+                                    {
+                                        <a class="carousel-control-prev" href="#carousel-@reply.Id" role="button" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </a>
+                                        <a class="carousel-control-next" href="#carousel-@reply.Id" role="button" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            <div class="post-actions mt-2">
+                                <button class="btn like p-0" onclick="toggleLike(@reply.Id, this)">
+                                    <i class="far fa-thumbs-up"></i> <span class="like">Like (@reply.LikeCount)</span>
+                                </button>
+                                <button class="btn comment p-0" onclick="showReplyPopup(@reply.Id)">
+                                    <i class="far fa-comment"></i> Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Reply Popup -->
+            <div id="reply-popup" class="reply-popup">
+                <div class="reply-popup-content">
+                    <span class="close" onclick="closeReplyPopup()">&times;</span>
+                    <h4>Reply to Post</h4>
+                    <form asp-action="CreateReply" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="repliedToId" value="@Model.Post.Id" />
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" rows="3" placeholder="What's your reply?"></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center;">
+                            <button type="submit" class="btn btn-primary mt-2" style="margin-right: 20px">Reply!</button>
+                            <label for="mediaFiles" class="custom-file-upload">
+                                <i class="fas fa-cloud-upload-alt"></i> <span id="upload-text">Upload Media</span>
+                            </label>
+                            <input type="file" class="form-control-file" id="mediaFiles" name="mediaFiles" multiple />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("mediaFiles").addEventListener("change", function () {
+            var count = this.files.length;
+            var text = count > 1 ? count + " files selected" : (count === 1 ? count + " file selected" : "Upload Media");
+            document.getElementById("upload-text").innerText = text;
+        });
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/postHub")
+            .build();
+
+        connection.on("ReceiveNewPostNotification", function () {
+            const notification = document.createElement("div");
+            notification.className = "alert alert-info";
+            notification.innerHTML = "New posts are available. <a href='/Home/Index'>Click here to refresh</a>.";
+            document.body.insertBefore(notification, document.body.firstChild);
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        async function toggleLike(postId, button) {
+            try {
+                const response = await fetch('/api/LikesApi/ToggleLikePost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(postId)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const likeSpan = button.querySelector('.like');
+                    if (data && data.likeCount !== undefined) {
+                        likeSpan.textContent = `Like (${data.likeCount})`;
+                    } else {
+                        console.error('Unexpected response format:', data);
+                    }
+                } else {
+                    console.error('Failed to toggle like:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        }
+
+        function showReplyPopup(postId) {
+            document.getElementById("reply-popup").style.display = "block";
+        }
+
+        function closeReplyPopup() {
+            document.getElementById("reply-popup").style.display = "none";
+        }
+    </script>
+    <style>
+        .reply-popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .reply-popup-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+}

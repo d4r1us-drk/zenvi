@@ -13,7 +13,7 @@
                 </div>
             </div>
             <!-- Post Form -->
-            <div class="card mb-4">
+            <div class="card mb-6">
                 <div class="card-body">
                     <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
                         <div class="form-group">
@@ -34,7 +34,7 @@
         <!-- Main Content -->
         <div class="col-md-8">
             <div id="post-container">
-                @await Html.PartialAsync("_PostListPartial", Model)
+                @await Html.PartialAsync("_PostListPartial", Model.Posts)
             </div>
             <div id="loading-spinner" style="display:none;">
                 <p>Loading...</p>

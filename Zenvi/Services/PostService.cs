@@ -13,11 +13,13 @@ public interface IPostService
     Task<Post> GetPostByIdAsync(int id);
     Task<Post> UpdatePostAsync(int id, ClaimsPrincipal user, string? content, List<string>? mediaNames);
     Task DeletePostAsync(int id, ClaimsPrincipal user);
-    Task<Post> ReplyToPostAsync(ClaimsPrincipal user, Post post, List<string>? mediaNames, int repliedToId);
-    Task<List<Post>> GetPostsFromFollowedUsersAsync(ClaimsPrincipal user);
+    Task<Post> ReplyToPostAsync(ClaimsPrincipal user, string content, List<string>? mediaNames, int repliedToId);
+    Task<List<Post>> GetPostsFromFollowedUsersAsync(ClaimsPrincipal user, int page, int pageSize);
     Task<List<Post>> GetPostsPagedAsync(int page, int pageSize);
     Task<List<Post>> GetPostsByUserAsync(User user);
+    Task<List<Post>> GetPostsByUserPagedAsync(User user, int page, int pageSize);
     Task<List<Post>> SearchPostsAsync(string query, int page, int pageSize);
+    Task<List<Post>> GetRepliesAsync(int postId);
 }
 
 public class PostService(ApplicationDbContext context) : IPostService
@@ -99,6 +101,7 @@ public class PostService(ApplicationDbContext context) : IPostService
 
         var post = await context.Posts
             .Include(p => p.PostOp)
+            .ThenInclude(u => u.ProfilePicture)
             .Include(p => p.MediaContent)
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -200,7 +203,7 @@ public class PostService(ApplicationDbContext context) : IPostService
         _logHandler.LogInfo("Post deleted successfully.");
     }
 
-    public async Task<Post> ReplyToPostAsync(ClaimsPrincipal user, Post post, List<string>? mediaNames, int repliedToId)
+    public async Task<Post> ReplyToPostAsync(ClaimsPrincipal user, string content, List<string>? mediaNames, int repliedToId)
     {
         _logHandler.LogInfo("Creating a reply to a post.");
 
@@ -225,11 +228,14 @@ public class PostService(ApplicationDbContext context) : IPostService
             throw new KeyNotFoundException("Replied to post not found");
         }
 
-        post.PostOp = postOp;
-        post.CreatedAt = DateTime.UtcNow;
-        post.RepliedToId = repliedToId;
+        var post = new Post
+        {
+            PostOp = postOp,
+            CreatedAt = DateTime.UtcNow,
+            RepliedToId = repliedToId,
+            Content = content
+        };
 
-        // Attach media to post
         if (mediaNames != null && mediaNames.Any())
         {
             var mediaContent = await context.Media.Where(m => mediaNames.Contains(m.Name)).ToListAsync();
@@ -248,14 +254,11 @@ public class PostService(ApplicationDbContext context) : IPostService
         return post;
     }
 
-    public async Task<List<Post>> GetPostsFromFollowedUsersAsync(ClaimsPrincipal user)
+    public async Task<List<Post>> GetPostsFromFollowedUsersAsync(ClaimsPrincipal user, int page, int pageSize)
     {
-        _logHandler.LogInfo("Retrieving posts from followed users.");
-
         var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            _logHandler.LogError("User ID not found in claims.", new UnauthorizedAccessException());
             throw new UnauthorizedAccessException();
         }
 
@@ -268,9 +271,10 @@ public class PostService(ApplicationDbContext context) : IPostService
             .Where(p => followedUserIds.Contains(p.PostOp.Id))
             .Include(p => p.PostOp)
             .Include(p => p.MediaContent)
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-
-        _logHandler.LogInfo($"Retrieved {posts.Count} posts from followed users.");
 
         return posts;
     }
@@ -296,6 +300,18 @@ public class PostService(ApplicationDbContext context) : IPostService
             .ToListAsync();
     }
 
+    public async Task<List<Post>> GetPostsByUserPagedAsync(User user, int page, int pageSize)
+    {
+        return await context.Posts
+            .Where(p => p.PostOp.Id == user.Id)
+            .Include(p => p.PostOp)
+            .Include(p => p.MediaContent)
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
     public async Task<List<Post>> SearchPostsAsync(string query, int page, int pageSize)
     {
         return await context.Posts
@@ -306,6 +322,16 @@ public class PostService(ApplicationDbContext context) : IPostService
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Post>> GetRepliesAsync(int postId)
+    {
+        return await context.Posts
+            .Where(p => p.RepliedToId == postId)
+            .Include(p => p.PostOp)
+            .ThenInclude(u => u.ProfilePicture)  // Include ProfilePicture
+            .Include(p => p.MediaContent)
             .ToListAsync();
     }
 }

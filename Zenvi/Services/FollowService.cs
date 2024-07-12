@@ -13,6 +13,7 @@ public interface IFollowService
     Task<List<Follow>> GetFollowersAsync(string userId);
     Task<List<Follow>> GetFollowingAsync(string userId);
     Task<bool> AreUsersFollowingEachOtherAsync(ClaimsPrincipal user, string otherUserId);
+    Task<bool> IsFollowingAsync(ClaimsPrincipal user, string targetUserId);
 }
 
 public class FollowService(ApplicationDbContext context) : IFollowService
@@ -126,5 +127,24 @@ public class FollowService(ApplicationDbContext context) : IFollowService
         _logHandler.LogInfo($"Users follow each other: {isFollowing && isFollowedBy}.");
 
         return isFollowing && isFollowedBy;
+    }
+
+    public async Task<bool> IsFollowingAsync(ClaimsPrincipal user, string targetUserId)
+    {
+        _logHandler.LogInfo("Checking if the user is following another user.");
+
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            _logHandler.LogError("User ID not found in claims.", new UnauthorizedAccessException());
+            throw new UnauthorizedAccessException();
+        }
+
+        var isFollowing = await context.Follows
+            .AnyAsync(f => f.SourceId == userId && f.TargetId == targetUserId);
+
+        _logHandler.LogInfo($"Is following: {isFollowing}.");
+
+        return isFollowing;
     }
 }

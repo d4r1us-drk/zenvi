@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Zenvi.Models;
 using Zenvi.Services;
 
+namespace Zenvi.Controllers;
+
+[Authorize]
 public class SearchController(UserManager<User> userManager, IPostService postService, ILikeService likeService)
     : Controller
 {

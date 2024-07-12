@@ -11,92 +11,46 @@
                 <div class="user_details larger">
                     <h3>@Model.User.Name @Model.User.Surname</h3>
                     <p>@Model.User.Bio</p>
-                    <a href="~/Identity/Account/Manage" class="btn btn-primary">Edit profile</a>
+                    @if (Model.IsCurrentUser)
+                    {
+                        <a href="~/Identity/Account/Manage" class="btn btn-primary">Edit profile</a>
+                    }
+                    else
+                    {
+                        <button id="follow-btn" class="btn @(Model.IsFollowing ? "btn-secondary" : "btn-primary")" onclick="toggleFollow('@Model.User.Id')">
+                            @(Model.IsFollowing ? "Following" : "Follow")
+                        </button>
+                    }
                 </div>
             </div>
 
             <!-- Post Form -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?"></textarea>
-                        </div>
-                        <div class="form-group" style="display: flex; align-items: center;">
-                            <button type="submit" class="btn btn-primary mt-2" style="margin-right: 20px">Post!</button>
-                            <label for="mediaFiles" class="custom-file-upload">
-                                <i class="fas fa-cloud-upload-alt"></i> <span id="upload-text">Upload Media</span>
-                            </label>
-                            <input type="file" class="form-control-file" id="mediaFiles" name="mediaFiles" multiple />
-                        </div>
-                    </form>
+            @if (Model.IsCurrentUser)
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?"></textarea>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: center;">
+                                <button type="submit" class="btn btn-primary mt-2" style="margin-right: 20px">Post!</button>
+                                <label for="mediaFiles" class="custom-file-upload">
+                                    <i class="fas fa-cloud-upload-alt"></i> <span id="upload-text">Upload Media</span>
+                                </label>
+                                <input type="file" class="form-control-file" id="mediaFiles" name="mediaFiles" multiple />
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- Posts -->
             <div id="post-container">
-                @foreach (var post in Model.Posts)
-                {
-                    <div class="post card mb-4">
-                        <div class="card-body">
-                            <div class="post-header">
-                                <img src="@(post.PostOp.ProfilePicture != null ? Url.Content($"~/media/{post.PostOp.ProfilePicture.Name}") : Url.Content("~/images/profile-picture-placeholder.png"))" class="profile-picture" alt="Profile Picture" />
-                                <div class="post-header-info">
-                                    <strong>@post.PostOp.Name @post.PostOp.Surname</strong>
-                                    <span class="post-date">@post.CreatedAt.ToString("HH:mm - MMMM dd, yyyy")</span>
-                                </div>
-                            </div>
-                            <div class="post-content">
-                                @post.Content
-                            </div>
-                            @if (post.MediaContent != null && post.MediaContent.Any())
-                            {
-                                <div id="carousel-@post.Id" class="carousel slide post-media-carousel @(post.MediaContent.Count > 1 ? "" : "carousel-single")" data-bs-ride="carousel">
-                                    <div class="carousel-inner">
-                                        @for (var i = 0; i < post.MediaContent.Count; i++)
-                                        {
-                                            var media = post.MediaContent[i];
-                                            <div class="carousel-item @(i == 0 ? "active" : "")">
-                                                @if (media.Type.StartsWith("image"))
-                                                {
-                                                    <img src="~/media/@media.Name" alt="Post Media" class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
-                                                }
-                                                else if (media.Type.StartsWith("video"))
-                                                {
-                                                    <video controls class="d-block w-100 img-fluid rounded" style="aspect-ratio: 5/4; object-fit: cover;">
-                                                        <source src="~/media/@media.Name" type="@media.Type">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                }
-                                            </div>
-                                        }
-                                    </div>
-                                    @if (post.MediaContent.Count > 1)
-                                    {
-                                        <a class="carousel-control-prev" href="#carousel-@post.Id" role="button" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </a>
-                                        <a class="carousel-control-next" href="#carousel-@post.Id" role="button" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </a>
-                                    }
-                                </div>
-                            }
-                            <div class="post-actions mt-2">
-                                <form asp-action="ToggleLikePost" method="post" class="d-inline">
-                                    <input type="hidden" name="postId" value="@post.Id" />
-                                    <button type="submit" class="btn like p-0">
-                                        <i class="far fa-thumbs-up"></i> <span class="like @(Model.LikedPostIds.Contains(post.Id) ? "liked" : "")">Like (@post.LikeCount)</span>
-                                    </button>
-                                </form>
-                                <span class="comment"><i class="far fa-comment"></i> Reply</span>
-                                <span class="share"><i class="fas fa-share"></i> Share</span>
-                            </div>
-                        </div>
-                    </div>
-                }
+                @await Html.PartialAsync("_PostListPartial", Model.Posts)
+            </div>
+            <div id="loading-spinner" style="display:none;">
+                <p>Loading...</p>
             </div>
         </div>
     </div>
@@ -104,10 +58,94 @@
 
 @section Scripts {
     <script>
-        document.getElementById("mediaFiles").addEventListener("change", function () {
-            var count = this.files.length;
-            var text = count > 1 ? count + " files selected" : (count === 1 ? count + " file selected" : "Upload Media");
-            document.getElementById("upload-text").innerText = text;
+        document.addEventListener("DOMContentLoaded", function() {
+            const mediaFilesElement = document.getElementById("mediaFiles");
+            if (mediaFilesElement) {
+                mediaFilesElement.addEventListener("change", function () {
+                    var count = this.files.length;
+                    var text = count > 1 ? count + " files selected" : (count === 1 ? count + " file selected" : "Upload Media");
+                    document.getElementById("upload-text").innerText = text;
+                });
+            }
+        });
+
+        async function toggleLike(postId, button) {
+            try {
+                const response = await fetch('/api/LikesApi/ToggleLikePost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(postId)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const likeSpan = button.querySelector('.like');
+                    if (data && data.likeCount !== undefined) {
+                        likeSpan.textContent = `Like (${data.likeCount})`;
+                    } else {
+                        console.error('Unexpected response format:', data);
+                    }
+                } else {
+                    console.error('Failed to toggle like:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        }
+
+        async function toggleFollow(targetUserId) {
+            const followButton = document.getElementById('follow-btn');
+            const isFollowing = followButton.textContent.trim() === "Following";
+
+            try {
+                const response = await fetch(`/api/FollowApi/${isFollowing ? "Unfollow" : "Follow"}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(targetUserId)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.isFollowing !== undefined) {
+                        followButton.textContent = data.isFollowing ? "Following" : "Follow";
+                        followButton.className = data.isFollowing ? "btn btn-secondary" : "btn btn-primary";
+                    } else {
+                        console.error('Unexpected response format:', data);
+                    }
+                } else {
+                    console.error('Failed to toggle follow:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error toggling follow:', error);
+            }
+        }
+
+        let page = @Model.Page;
+        const pageSize = @Model.PageSize;
+        const postContainer = document.getElementById('post-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        let isLoading = false;
+
+        window.addEventListener('scroll', async () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
+                isLoading = true;
+                loadingSpinner.style.display = 'block';
+                page++;
+
+                const response = await fetch(`@Url.Action("UserPosts", "Posts")?userId=@Model.User.Id&page=${page}&pageSize=${pageSize}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const postsHtml = await response.text();
+                postContainer.insertAdjacentHTML('beforeend', postsHtml);
+                isLoading = false;
+                loadingSpinner.style.display = 'none';
+            }
         });
     </script>
 }
