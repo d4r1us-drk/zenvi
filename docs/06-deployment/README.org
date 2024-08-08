@@ -1,6 +1,0 @@
-#+title: Deployment
-#+author: Clay Gomera
-#+description: README file for the deployment folder
-
-This folder's main purpose is to host all the documentation for the software
-deployment process. The following files at this point have been made:
