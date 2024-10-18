@@ -1,0 +1,6 @@
+@Zenvi.Core_HostAddress = http://localhost:5109
+
+GET {{Zenvi.Core_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
